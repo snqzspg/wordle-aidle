@@ -4,6 +4,7 @@
 #include "../error/print_error.h"
 #include "../pages/tester.h"
 #include "../picking_algorithm/highest_information_entropy.h"
+#include "../picking_algorithm/hybrid.h"
 #include "../picking_algorithm/most-frequent-in-column.h"
 #include "../picking_algorithm/random_pick.h"
 #include "../terminal_helper/ccolours.h"
@@ -42,10 +43,26 @@ static void* create_solver_6(test_sess* session) {
 }
 
 static void* create_solver_7(test_sess* session) {
-	return solver_create(guess_randomly, 0);
+	return solver_create_w_alt_list(guess_by_information_entropy_optimised_level_1, 0, 2, 1, 0);
 }
 
 static void* create_solver_8(test_sess* session) {
+	return solver_create_w_alt_list(guess_by_information_entropy_optimised_level_1, 1, 2, 1, 0);
+}
+
+static void* create_solver_9(test_sess* session) {
+	return solver_create_w_alt_list(guess_by_information_freq_hybrid, 0, 2, 1, 0);
+}
+
+static void* create_solver_10(test_sess* session) {
+	return solver_create_w_alt_list(guess_by_information_freq_hybrid, 1, 2, 1, 0);
+}
+
+static void* create_solver_11(test_sess* session) {
+	return solver_create(guess_randomly, 0);
+}
+
+static void* create_solver_12(test_sess* session) {
 	return solver_create(guess_randomly, 1);
 }
 
@@ -71,6 +88,18 @@ static void delete_solver_1(void* s, test_sess* session) {
 int test_algo_1_thread(wlist* word_list, const int algorithm, const char* starting_word) {
 	void* (*c_slvr_fx) (test_sess* session);
 	switch (algorithm) {
+	case 12:
+		c_slvr_fx = create_solver_12;
+		break;
+	case 11:
+		c_slvr_fx = create_solver_11;
+		break;
+	case 10:
+		c_slvr_fx = create_solver_10;
+		break;
+	case 9:
+		c_slvr_fx = create_solver_9;
+		break;
 	case 8:
 		c_slvr_fx = create_solver_8;
 		break;

@@ -1,0 +1,12 @@
+v0.3.1
+ - Added optimised Information Entropy to enable faster testing process for Information Entropy.
+ - Added Hybrid Algorithms, combination of Column Frequency and Information Entropy algorithms.
+ - This hybrid algorithm was inspired from https://betterprogramming.pub/building-a-wordle-bot-in-under-100-lines-of-python-9b980539defb
+ - Several code restructuring for cleaner code in future versions.
+
+v0.3.0
+ - Initial (relative) stable release.
+ - Solver includes Column Frequency, Information Entropy and Random guess algorithms.
+ - Solver also includes an imitated Wordle game, as well as a algorithm tester.
+ - Includes 12947 words from the official Wordle game. 2309 of them are answers. Words are currently hard coded in the program
+ - Also includes 5837 extra words not in Wordle's word list.

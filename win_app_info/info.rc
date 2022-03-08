@@ -1,6 +1,6 @@
 1 VERSIONINFO
-FILEVERSION     0,3,0,0
-PRODUCTVERSION  0,3,0,0
+FILEVERSION     0,3,1,0
+PRODUCTVERSION  0,3,1,0
 BEGIN
 	BLOCK "StringFileInfo"
 	BEGIN
@@ -8,12 +8,12 @@ BEGIN
 		BEGIN
 			VALUE "CompanyName", "Snqzs' PG"
 			VALUE "FileDescription", "Wordle Aidle"
-			VALUE "FileVersion", "0.3.0.0"
+			VALUE "FileVersion", "0.3.1.0"
 			VALUE "InternalName", "wordle_aidle"
 			VALUE "LegalCopyright", "Snqzs' PG"
 			VALUE "OriginalFilename", "waidle.exe"
 			VALUE "ProductName", "Wordle Aidle"
-			VALUE "ProductVersion", "snapshot-202203030202"
+			VALUE "ProductVersion", "0.3.1"
 		END
 	END
 	BLOCK "VarFileInfo"

@@ -100,7 +100,7 @@ static void print_mode_title() {
 }
 
 static void print_alg_info(int algo) {
-	if (algo == 5) {
+	if (algo == 9) {
 		pgcg_set_warning_colour();
 		printf("    WARNING: Statistical algorithms can be very slow!\n    Especially if it can pick non-hard-mode words!\n    Proceed only if you have the patience :D\n");
 		pgcg_reset_colour();
@@ -195,9 +195,21 @@ void testing_screen(const int algo) {
 		printf("\nPerforming test on Statistical Algorithm (No hard mode) (Resilient)\n\n");
 		break;
 	case 7:
-		printf("\nPerforming test on Random guess Algorithm\n\n");
+		printf("\nPerforming test on Statistical Algorithm (No hard mode) (Slightly Optimised)\n\n");
 		break;
 	case 8:
+		printf("\nPerforming test on Statistical Algorithm (No hard mode) (Larger vocabulary) (Slightly Optimised)\n\n");
+		break;
+	case 9:
+		printf("\nPerforming test on Matt Dodge Hybrid Algorithm (No hard mode)\n\n");
+		break;
+	case 10:
+		printf("\nPerforming test on Matt Dodge Hybrid Algorithm (No hard mode) (Larger vocabulary)\n\n");
+		break;
+	case 11:
+		printf("\nPerforming test on Random guess Algorithm\n\n");
+		break;
+	case 12:
 		printf("\nPerforming test on Random guess Algorithm (Larger vocabulary)\n\n");
 		break;
 	default:

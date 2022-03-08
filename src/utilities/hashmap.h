@@ -1,6 +1,8 @@
 #ifndef HASHMAP_H_INCLUDED
 #define HASHMAP_H_INCLUDED
 
+#include <stdio.h>
+
 typedef struct char_to_sizet_hash_mp_item cts_hmap_item;
 
 struct char_to_sizet_hash_mp_item {

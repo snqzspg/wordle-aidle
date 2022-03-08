@@ -5,14 +5,31 @@
 #define STATUS_LOST 1
 #define STATUS_WON 2
 
+#include <stdio.h>
+
+#include "../picking_algorithm/algorithms.h"
+#include "../wordle/guess_bucket.h"
+#include "../wordle/word_list.h"
+
+struct word_list_config {
+	wlist* list;
+	char standard_filter;
+};
+
+typedef struct algo_registry algorithm;
+
 typedef struct wordle_game_solver {
 	gbucket* guesses;
 	wlist* words_remaining;
 	wlist* words_remaining_2;
 	char filter_main_list;
 	char filter_alt_list;
+	struct word_list_config* list_configs;
+	size_t word_list_config_len;
+	size_t wlconfig_alloc_size;
 	char status;
 	char* (*suggestion_algorithm) (wlist* l, gbucket* g, wlist* altl);
+	algorithm* suggest_algo;
 	char* suggested_word;
 } solver;
 

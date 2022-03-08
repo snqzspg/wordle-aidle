@@ -13,6 +13,16 @@
 #include "../word_list/word_bank.h"
 #include "solver.h"
 
+void solver_request_additional_wlist(solver* slvr) {
+	if (slvr -> word_list_config_len + 1 > slvr -> wlconfig_alloc_size) {
+		slvr -> wlconfig_alloc_size *= 2;
+		slvr -> list_configs = realloc(slvr -> list_configs, sizeof(struct word_list_config) * slvr -> wlconfig_alloc_size);
+	}
+	size_t i = slvr -> word_list_config_len;
+	slvr -> list_configs[i].list = wlist_create();
+	slvr -> word_list_config_len++;
+}
+
 solver* solver_create(char* (*sugg_algo) (wlist* l, gbucket* g, wlist* altl), char include_all_valid_words) {
 	return solver_create_w_alt_list(sugg_algo, include_all_valid_words, 0, 1, 0);
 }

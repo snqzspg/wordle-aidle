@@ -6,6 +6,7 @@
 #include "../error/print_error.h"
 #include "../picking_algorithm/algorithms.h"
 #include "../picking_algorithm/highest_information_entropy.h"
+#include "../picking_algorithm/hybrid.h"
 #include "../picking_algorithm/most-frequent-in-column.h"
 #include "../picking_algorithm/random_pick.h"
 #include "../terminal_helper/ccolours.h"
@@ -79,10 +80,10 @@ void print_intro_page() {
 static void print_algo_info(int algo) {
 	pgcg_set_note_colour();
 	switch (algo) {
-	case 5:
+	case 7:
 		printf("    Statistical algorithms have time complexities of O(n^2).\n");
 		break;
-	case 7:
+	case 11:
 		printf("    Larger vocabulary/resilient algorithms avoids dependency\n    on official Wordle answers.\n");
 	}
 	pgcg_reset_colour();
@@ -256,11 +257,23 @@ void option1_thread() {
 	}
 	solver* w_solver = NULL;
 	switch (alg) {
-	case 7:
+	case 11:
 		w_solver = solver_create(guess_randomly, 1);
 		break;
-	case 6:
+	case 10:
 		w_solver = solver_create(guess_randomly, 0);
+		break;
+	case 9:
+		w_solver = solver_create_w_alt_list(guess_by_information_freq_hybrid, 1, 2, 1, 0);
+		break;
+	case 8:
+		w_solver = solver_create_w_alt_list(guess_by_information_freq_hybrid, 0, 2, 1, 0);
+		break;
+	case 7:
+		w_solver = solver_create_w_alt_list(guess_by_information_entropy_optimised_level_1, 1, 2, 1, 0);
+		break;
+	case 6:
+		w_solver = solver_create_w_alt_list(guess_by_information_entropy_optimised_level_1, 0, 2, 1, 0);
 		break;
 	case 5:
 		w_solver = solver_create_w_alt_list(guess_by_information_entropy, 1, 2, 1, 0);

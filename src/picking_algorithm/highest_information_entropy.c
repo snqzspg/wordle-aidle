@@ -147,17 +147,21 @@ static char* word_w_max_entropy(wlist* list, wlist* ref_list) {
 	return ret_word;
 }
 
+static char should_pick_alt_list(wlist* word_list, char optimise) {
+	return word_list -> length > 2 && (!optimise || word_list -> length < 50);
+}
+
 /*
  * NOTE: alt_list could be NULL
  */
-char* guess_by_information_entropy(wlist* word_list, gbucket* g, wlist* alt_list) {
+static char* guess_by_information_entropy_base(wlist* word_list, gbucket* g, wlist* alt_list, char optimise) {
 	if (word_list -> length == 0) {
 		return NULL;
 	}
 	if (alt_list == NULL) {
 		alt_list = word_list;
 	}
-	wlist* topick = word_list -> length > 2/*g -> max_guesses - g -> guess_count*/ ? alt_list : word_list;
+	wlist* topick = should_pick_alt_list(word_list, optimise)/*g -> max_guesses - g -> guess_count*/ ? alt_list : word_list;
 	//size_t wlen = gbucket_getlastguess(g) -> length;
 //	struct word_entropy* entropies = malloc(sizeof(struct word_entropy) * topick -> length);
 	char** tmp_word_list = malloc(sizeof(char*) * word_list -> length);
@@ -193,4 +197,17 @@ char* guess_by_information_entropy(wlist* word_list, gbucket* g, wlist* alt_list
 	free(tmp_word_list);
 //	free(entropies);
 	return word_w_max_entropy(topick, word_list);
+}
+
+char* guess_by_information_entropy(wlist* l, gbucket* g, wlist* alt_list) {
+	return guess_by_information_entropy_base(l, g, alt_list, 0);
+}
+
+/**
+ * Using Matt Dodge's optimisation method.
+ * Credit:
+ *     https://betterprogramming.pub/building-a-wordle-bot-in-under-100-lines-of-python-9b980539defb
+ */
+char* guess_by_information_entropy_optimised_level_1(wlist* l, gbucket* g, wlist* alt_list) {
+	return guess_by_information_entropy_base(l, g, alt_list, 1);
 }

@@ -53,5 +53,7 @@ The folder `__build_tmp__` will be created during the building process. You can 
 
 **NOTE:** Running the above command will delete **everything** inside the `__build_tmp__` folder, including any new stuff you've put inside or stuff you happen to have in the folder before building.
 
+## Features
+
 *This project is having its first days on GitHub. It need time to adopt to it's new envrionment.
 Stay tuned as this page is in the progress of making. The rest is to be written...*

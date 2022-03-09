@@ -38,5 +38,20 @@ mingw32-make: *** No targets specified and no makefile found.  Stop.
 ```
 To build, you will need to navigate to the root directory of the clone by typing `cd ` and dragging the folder into the prompt window. Then type make for_windows and it will automatically build the application. After it's done, the executable `waidle.exe` will be generated.
 ### macOS
+To install GCC and make for macOS you will need to install Xcode Command Line Tools. You can install it using the terminal command `xcode-select --install` and follow the prompt instructions. Alternatively you can also use homebrew to install Xcode Command Line Tools. You can also do [a quick google search](https://www.google.com/search?q=xcode+command+line+tools) on how to install.
+
+After installation you should see output similar to the ones shown in the Windows section above when you type `gcc` and `make`.
+
+To build, navigate to the base directory using Terminal and simply type `make for_mac`. After building, you can type ./waidle to run.
+### Linux
+For linux users, use your distro's package manager to install GCC and make. Example `sudo apt install gcc` for debian/ubuntu-based systems, or `sudo pacman -S gcc` for arch-based systems.
+
+To build, navigate to the base directory using Terminal/Console and simply type `make for_linux`. After building, you can type ./waidle to run.
+
+### Cleanup
+The folder `__build_tmp__` will be created during the building process. You can manually delete the folder after building or run `make clean_windows` or `make clean_linux` to remove the folder.
+
+**NOTE:** Running the above command will delete **everything** inside the `__build_tmp__` folder, including any new stuff you've put inside or stuff you happen to have in the folder before building.
+
 *This project is having its first days on GitHub. It need time to adopt to it's new envrionment.
 Stay tuned as this page is in the progress of making. The rest is to be written...*

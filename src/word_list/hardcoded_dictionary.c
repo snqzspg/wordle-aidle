@@ -33,6 +33,7 @@ char** hcded_dict_ordered;
 wbank* hcded_dict;
 
 /**
+ * Last updated 20220315
  * From previous update on 20220212
  * 25 words has been deleted from the Wordle word list by The New York Times as they are considered 'obscure', 'insensitive' or 'offensive'.
  * Now they are added back as valid guesses. They are not Wordle answers.

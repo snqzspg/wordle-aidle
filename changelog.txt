@@ -1,3 +1,6 @@
+v0.3.1.1
+ - Updated the word list in this app as Wordle had its word list changed.
+
 v0.3.1
  - Added optimised Information Entropy to enable faster testing process for Information Entropy.
  - Added Hybrid Algorithms, combination of Column Frequency and Information Entropy algorithms.

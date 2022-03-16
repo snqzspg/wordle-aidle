@@ -4,7 +4,7 @@
 
 #include "../error/print_error.h"
 #include "../picking_algorithm/algorithms.h"
-#include "../terminal_helper/ccolours.h"
+#include "../terminal_helper/cons_graphics.h"
 #include "../terminal_helper/helper_fxs.h"
 #include "../terminal_helper/progress_bar.h"
 #include "../test_solve/tester.h"
@@ -177,10 +177,10 @@ void testing_screen(const int algo) {
 	print_title_banner();
 	switch (algo) {
 	case 1:
-		printf("\nPerforming test on Most frequent letter per position\n\n");
+		printf("\nPerforming test on Popular in position\n\n");
 		break;
 	case 2:
-		printf("\nPerforming test on Most frequent letter per position (Larger vocabulary)\n\n");
+		printf("\nPerforming test on Popular in position (Larger vocabulary)\n\n");
 		break;
 	case 3:
 		printf("\nPerforming test on Statistical Algorithm (Hard mode)\n\n");
@@ -471,7 +471,7 @@ int results_guesses_page(test_sess* session, size_t* current_page, const size_t 
 		fprintf(stderr, "ERROR: boards[%lu] is null.\n", (long unsigned) *current_page - 1);
 		pgcg_reset_colour_stderr();
 	} else {
-		gbucket_tessresprintall(session -> boards[*current_page - 1], 1);
+		gbucket_tessresprintall(session -> boards[*current_page - 1], 1, 0);
 	}
 	printf("\n");
 	if (!cpy_page_request(session, total_pages, current_page, invalid)) {

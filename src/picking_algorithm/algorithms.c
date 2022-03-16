@@ -3,11 +3,15 @@
 #include <string.h>
 
 #include "../error/print_error.h"
-#include "../terminal_helper/ccolours.h"
+#include "../terminal_helper/cons_graphics.h"
 #include "../terminal_helper/helper_fxs.h"
 #include "../utilities/input-helper.h"
 
 #include "algorithms.h"
+#include "highest_information_entropy.h"
+#include "hybrid.h"
+#include "most-frequent-in-column.h"
+#include "random_pick.h"
 
 #define init_alloc_size 4
 
@@ -38,36 +42,36 @@ static void alcat_add_algo(alcat* cat, algorithm* alg) {
 	cat -> registered_algo_count++;
 }
 
-void register_algorithm(alcat* cat, int id, const char* name, char* (*suggest_word) (gbucket* guess_board, wlist** word_lists, size_t nword_lists), void (*init) (solver* slvr, algorithm* algo), void (*cleanup) (solver* slvr, algorithm* algo), void (*guess_made) (solver* slvr, algorithm* algo)) {
+algorithm* register_algorithm(alcat* cat, int id, const char* name, size_t min_word_lists, char* (*suggest_word) (gbucket* guess_board, wlist** word_lists, size_t nword_lists), void (*init) (solver* slvr, algorithm* algo), void (*cleanup) (solver* slvr, algorithm* algo), void (*guess_made) (solver* slvr, algorithm* algo)) {
 	algorithm* a = malloc(sizeof(algorithm));
 	a -> id = id;
+	a -> order = cat -> registered_algo_count;
 	a -> name = malloc(sizeof(char) * (strlen(name) + 1));
 	if (a -> name == NULL) {
 		print_error_ln("ERROR no more memory to register algorithms.");
-		return;
+		return NULL;
 	}
 	strcpy(a -> name, name);
+	a -> info = NULL;
+	a -> min_word_lists = min_word_lists;
 	a -> suggest_word = suggest_word;
 	a -> init = init;
 	a -> cleanup = cleanup;
 	a -> guess_made = guess_made;
 	alcat_add_algo(cat, a);
+	return a;
 }
 
-//void register_algorithms() {
-//	//
-//}
-
-void algo_category_register(const int id, const char* name) {
+alcat* algo_category_register(const int id, const char* name) {
 	if (!accepting_registration) {
 		print_err_warning_ln("WARNING algorithm register process has ended.");
-		return;
+		return NULL;
 	}
 	if (registered_algo_cats == NULL) {
 		registered_algo_cats = (alcat*) malloc(sizeof(alcat) * init_alloc_size);
 		if (registered_algo_cats == NULL) {
 			print_error_ln("ERROR no more memory to register algorithm categories");
-			return;
+			return NULL;
 		}
 		registered_algos_allocated = init_alloc_size;
 	}
@@ -76,15 +80,16 @@ void algo_category_register(const int id, const char* name) {
 		registered_algo_cats = realloc(registered_algo_cats, sizeof(alcat) * registered_algos_allocated);
 		if (registered_algo_cats == NULL) {
 			print_error_ln("ERROR no more memory to register algorithm categories");
-			return;
+			return NULL;
 		}
 	}
 	size_t i = registered_algos_len;
 	registered_algo_cats[i].id = id;
+	registered_algo_cats[i].order = i;
 	registered_algo_cats[i].name = malloc(sizeof(char) * (strlen(name) + 1));
 	if (registered_algo_cats[i].name == NULL) {
 		print_error_ln("ERROR no more memory to register algorithm categories");
-		return;
+		return NULL;
 	}
 	strcpy(registered_algo_cats[i].name, name);
 	registered_algo_cats[i].info = NULL;
@@ -92,6 +97,7 @@ void algo_category_register(const int id, const char* name) {
 	registered_algo_cats[i].registered_algo_count = 0;
 	registered_algo_cats[i].registered_algo_alloc = 0;
 	registered_algos_len++;
+	return registered_algo_cats + i;
 }
 
 void alcat_add_desc(alcat* cat, const char* desc) {
@@ -107,8 +113,53 @@ void alcat_add_desc(alcat* cat, const char* desc) {
 	strcpy(cat -> info, desc);
 }
 
+alcat* column_popular_cat = NULL;
+alcat* information_theory_cat = NULL;
+alcat* matt_dodge_cat = NULL;
+alcat* random_pick_cat = NULL;
+
+algorithm* column_popular;
+algorithm* column_popular_larger_vocab;
+algorithm* information_theory;
+algorithm* information_theory_larger;
+algorithm* information_theory_hard;
+algorithm* information_theory_hard_larger;
+algorithm* matt_dodge_hybrid;
+algorithm* matt_dodge_hybrid_larger;
+
+void register_algorithms() {
+	column_popular_cat = algo_category_register(0, "Column Popular");
+	alcat_add_desc(column_popular_cat, "Picks the most frequent letter of matching words per position after each guess.");
+
+	column_popular = register_algorithm(column_popular_cat, 0, "Column Popular", 1, guess_by_freq_cols, column_popular_init, NULL, NULL);
+	column_popular_larger_vocab = register_algorithm(column_popular_cat, 1, "Column Popular (No answer dependence)", 1, guess_by_freq_cols, column_popular_larger_init, NULL, NULL);
+
+	information_theory_cat = algo_category_register(1, "Information Theory");
+	alcat_add_desc(information_theory_cat, "The algorithm that uses Information Theory to produce guess that maximizes the information obtained.\nThis algorithm can be slow, especially if it is allowed to choose non-hard mode words.");
+
+	information_theory = register_algorithm(information_theory_cat, 2, "Information Theory (No hard mode)", 2, guess_by_information_entropy, information_theory_init, NULL, NULL);
+	information_theory_larger = register_algorithm(information_theory_cat, 3, "Information Theory (No hard mode) (No answer dependence)", 2, guess_by_information_entropy, information_theory_more_vocab_init, NULL, NULL);
+	information_theory_hard = register_algorithm(information_theory_cat, 4, "Information Theory (Hard mode)", 2, guess_by_information_entropy, information_theory_hard_init, NULL, NULL);
+	information_theory_hard_larger = register_algorithm(information_theory_cat, 5, "Information Theory (Hard mode) (No answer dependence)", 2, guess_by_information_entropy, information_theory_more_vocab_hard_init, NULL, NULL);
+
+	matt_dodge_cat = algo_category_register(2, "Matt Dodge Hybrid");
+	alcat_add_desc(matt_dodge_cat, "Inspired by an article by Matt Dodge, this mixes the Column Popular and Information Theory algorithms in order to make the suggesting process more efficient.");
+
+	register_algorithm(matt_dodge_cat, 6, "Matt Dodge Hybrid (No hard mode)", 2, guess_by_information_freq_hybrid, matt_dodge_init, NULL, NULL);
+	register_algorithm(matt_dodge_cat, 7, "Matt Dodge Hybrid (No hard mode) (No answer dependence)", 2, guess_by_information_freq_hybrid, matt_dodge_larger_init, NULL, NULL);
+	register_algorithm(matt_dodge_cat, 8, "Matt Dodge Hybrid (Hard mode)", 2, guess_by_information_freq_hybrid, matt_dodge_hard_init, NULL, NULL);
+	register_algorithm(matt_dodge_cat, 9, "Matt Dodge Hybrid (Hard mode) (No answer dependence)", 2, guess_by_information_freq_hybrid, matt_dodge_hard_larger_init, NULL, NULL);
+
+	random_pick_cat = algo_category_register(3, "Random Guess");
+	alcat_add_desc(random_pick_cat, "Self-explanatory");
+
+	register_algorithm(random_pick_cat, 10, "Random Pick", 2, guess_randomly, random_pick_init, NULL, NULL);
+	register_algorithm(random_pick_cat, 11, "Random Pick (No answer dependence)", 2, guess_randomly, random_pick_larger_init, NULL, NULL);
+}
+
 void algorithm_delete(algorithm* x) {
 	free(x -> name);
+	free(x -> info);
 	free(x);
 }
 
@@ -144,32 +195,32 @@ int select_algo_page(void (*print_title_stuff)(), int* algo, void (*print_algo_a
 		clear_console();
 		if (print_title_stuff != NULL) print_title_stuff();
 		printf("\n");
-		printf("Choose an Algorithm by typing the corresponding number:\n");
-		printf("    1 - Most frequent letter per position\n");
+		print_wraped_linef("Choose an Algorithm by typing the corresponding number:", 0, PGINDENT);
+		print_wraped_linef("1 - Popular in position", 1, PGINDENT);
 		if (print_algo_add_info != NULL) print_algo_add_info(0);
-		printf("    2 - Most frequent letter per position (Larger vocabulary)\n");
+		print_wraped_linef("2 - Popular in position (Larger vocabulary)", 1, PGINDENT);
 		if (print_algo_add_info != NULL) print_algo_add_info(1);
-		printf("    3 - Statistical (Hard mode)\n");
+		print_wraped_linef("3 - Statistical (Hard mode)", 1, PGINDENT);
 		if (print_algo_add_info != NULL) print_algo_add_info(2);
-		printf("    4 - Statistical (Hard mode) (Larger vocabulary)\n");
+		print_wraped_linef("4 - Statistical (Hard mode) (Larger vocabulary)", 1, PGINDENT);
 		if (print_algo_add_info != NULL) print_algo_add_info(3);
-		printf("    w - Statistical (No hard mode)\n");
+		print_wraped_linef("w - Statistical (No hard mode)", 1, PGINDENT);
 		if (print_algo_add_info != NULL) print_algo_add_info(4);
-		printf("    e - Statistical (No hard mode) (Resilient)\n");
+		print_wraped_linef("e - Statistical (No hard mode) (Resilient)", 1, PGINDENT);
 		if (print_algo_add_info != NULL) print_algo_add_info(5);
-		printf("    r - Statistical (No hard mode) (Slightly Optimised) [WIP]\n");
+		print_wraped_linef("r - Statistical (No hard mode) (Slightly Optimised)", 1, PGINDENT);
 		if (print_algo_add_info != NULL) print_algo_add_info(6);
-		printf("    a - Statistical (No hard mode) (Resilient) (Slightly Optimised) [WIP]\n");
+		print_wraped_linef("a - Statistical (No hard mode) (Resilient) (Slightly Optimised)", 1, PGINDENT);
 		if (print_algo_add_info != NULL) print_algo_add_info(7);
-		printf("    s - Matt Dodge Hybrid (No hard mode) [WIP]\n");
+		print_wraped_linef("s - Matt Dodge Hybrid (No hard mode)", 1, PGINDENT);
 		if (print_algo_add_info != NULL) print_algo_add_info(8);
-		printf("    d - Matt Dodge Hybrid (No hard mode) (Resilient) [WIP]\n");
+		print_wraped_linef("d - Matt Dodge Hybrid (No hard mode) (Resilient)", 1, PGINDENT);
 		if (print_algo_add_info != NULL) print_algo_add_info(9);
-		printf("    f - Random guess\n");
+		print_wraped_linef("f - Random guess", 1, PGINDENT);
 		if (print_algo_add_info != NULL) print_algo_add_info(10);
-		printf("    z - Random guess (Larger vocabulary)\n");
+		print_wraped_linef("z - Random guess (Larger vocabulary)", 1, PGINDENT);
 		if (print_algo_add_info != NULL) print_algo_add_info(11);
-		printf("    q - Exit\n\n");
+		print_wraped_linef("q - Exit\n", 1, PGINDENT);
 		printf(" >> ");
 		free(input);
 		input = ask_user();

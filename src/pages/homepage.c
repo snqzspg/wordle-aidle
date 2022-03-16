@@ -5,6 +5,7 @@
 #include "../about.h"
 #include "../manual_input/manual_type.h"
 #include "../settings/colour_blind.h"
+#include "../terminal_helper/cons_graphics.h"
 #include "../terminal_helper/helper_fxs.h"
 #include "../utilities/hashmap.h"
 #include "../utilities/input-helper.h"
@@ -12,12 +13,23 @@
 
 #include "tester.h"
 
+static const char banner_lines[5][66] = {
+	" _  _   __  ____  ____  __    ____     __   __  ____  __    ____ ",
+	"/ )( \\ /  \\(  _ \\(    \\(  )  (  __)   / _\\ (  )(    \\(  )  (  __)",
+	"\\ /\\ /(  O ))   / ) D (/ (_/\\ ) _)   /    \\ )(  ) D (/ (_/\\ ) _) ",
+	"(_/\\_) \\__/(__\\_)(____/\\____/(____)  \\_/\\_/(__)(____/\\____/(____)",
+	"(ASCII Art: Wordle Aidle)"
+};
+
 void print_title_banner() {
-	printf(" _  _   __  ____  ____  __    ____     __   __  ____  __    ____ \n");
-	printf("/ )( \\ /  \\(  _ \\(    \\(  )  (  __)   / _\\ (  )(    \\(  )  (  __)\n");
-	printf("\\ /\\ /(  O ))   / ) D (/ (_/\\ ) _)   /    \\ )(  ) D (/ (_/\\ ) _) \n");
-	printf("(_/\\_) \\__/(__\\_)(____/\\____/(____)  \\_/\\_/(__)(____/\\____/(____)\n");
-	printf("(ASCII Art: Wordle Aidle)\n");
+	int cols = pgcg_get_console_cols() - 1;
+	printf("%.*s\n%.*s\n%.*s\n%.*s\n", cols, banner_lines[0], cols, banner_lines[1], cols, banner_lines[2], cols, banner_lines[3]);
+	printf("%s\n", banner_lines[4]);
+//	printf(" _  _   __  ____  ____  __    ____     __   __  ____  __    ____ \n");
+//	printf("/ )( \\ /  \\(  _ \\(    \\(  )  (  __)   / _\\ (  )(    \\(  )  (  __)\n");
+//	printf("\\ /\\ /(  O ))   / ) D (/ (_/\\ ) _)   /    \\ )(  ) D (/ (_/\\ ) _) \n");
+//	printf("(_/\\_) \\__/(__\\_)(____/\\____/(____)  \\_/\\_/(__)(____/\\____/(____)\n");
+//	printf("(ASCII Art: Wordle Aidle)\n");
 }
 
 /**
@@ -43,7 +55,7 @@ void print_homepage() {
 	print_title_banner();
 	printf("SPOILER: This will ruin the fun of Wordle\n");
 	printf("Version: %s\n\n", version);
-	printf("Choose one of the options below by typing the corresponding number/letter.\n\n");
+	print_wraped_linef("Choose one of the options below by typing the corresponding number/letter.\n", 0, PGINDENT);
 	printf(" 1 - Start solver\n");
 	printf(" 2 - Simulate Wordle game\n");
 	printf(" 3 - Test solvers\n");

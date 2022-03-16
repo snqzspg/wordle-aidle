@@ -3,6 +3,8 @@
 
 #include "../wordle/guess_bucket.h"
 #include "../wordle/word_list.h"
+#include "../wordle_solver/solver.h"
+#include "algorithms.h"
 
 /**
  * Most frequent in the letter column.
@@ -35,6 +37,10 @@
  *
  */
 
-char* guess_by_freq_cols(wlist* l, gbucket* g, wlist* alt_list);
+void column_popular_init(solver* slvr, algorithm* algo);
+void column_popular_larger_init(solver* slvr, algorithm* algo);
+
+//char* guess_by_freq_cols(wlist* l, gbucket* g, wlist* alt_list);
+char* guess_by_freq_cols(gbucket* guess_board, wlist** word_lists, size_t nword_lists);
 
 #endif // MOST_FREQUENT_IN_COLUMN_H_INCLUDED

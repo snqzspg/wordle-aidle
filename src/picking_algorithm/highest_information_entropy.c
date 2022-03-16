@@ -9,11 +9,57 @@
 #include "../wordle/wordle_logic.h"
 #include "../wordle/word_list.h"
 #include "../wordle_filter/list_words_by_clue.h"
+#include "../wordle_solver/solver.h"
+#include "../word_list/hardcoded_dictionary.h"
 
 #include "information_theory/string_to_size_t.h"
 #include "information_theory/stts_item.h"
 
+#include "algorithms.h"
 #include "highest_information_entropy.h"
+
+static void cpy_answers(solver* slvr, algorithm* algo, int list_index) {
+	wbitem* item;
+	wbank_foreachitem(item, hcded_dict) {
+		wlist_append(slvr -> list_configs[list_index].list, item -> value);
+	}
+}
+
+static void cpy_valids(solver* slvr, algorithm* algo, int list_index) {
+	cpy_answers(slvr, algo, list_index);
+	wbitem* item;
+	wbank_foreachitem(item, valid_words) {
+		wlist_append(slvr -> list_configs[list_index].list, item -> value);
+	}
+}
+
+void information_theory_init(solver* slvr, algorithm* algo) {
+	cpy_answers(slvr, algo, 0);
+	cpy_valids(slvr, algo, 1);
+	slvr -> list_configs[0].standard_filter = 1;
+	slvr -> list_configs[1].standard_filter = 0;
+}
+
+void information_theory_hard_init(solver* slvr, algorithm* algo) {
+	cpy_answers(slvr, algo, 0);
+	cpy_valids(slvr, algo, 1);
+	slvr -> list_configs[0].standard_filter = 1;
+	slvr -> list_configs[1].standard_filter = 1;
+}
+
+void information_theory_more_vocab_init(solver* slvr, algorithm* algo) {
+	cpy_valids(slvr, algo, 0);
+	cpy_valids(slvr, algo, 1);
+	slvr -> list_configs[0].standard_filter = 1;
+	slvr -> list_configs[1].standard_filter = 0;
+}
+
+void information_theory_more_vocab_hard_init(solver* slvr, algorithm* algo) {
+	cpy_valids(slvr, algo, 0);
+	cpy_valids(slvr, algo, 1);
+	slvr -> list_configs[0].standard_filter = 1;
+	slvr -> list_configs[1].standard_filter = 1;
+}
 
 /**
  * Copy the result distribution into distmap.
@@ -152,34 +198,33 @@ static char should_pick_alt_list(wlist* word_list, char optimise) {
 }
 
 /*
- * NOTE: alt_list could be NULL
+ * NOTE: Only the list at index 0 is displayed to the user
  */
-static char* guess_by_information_entropy_base(wlist* word_list, gbucket* g, wlist* alt_list, char optimise) {
-	if (word_list -> length == 0) {
+//static char* guess_by_information_entropy_base(wlist* word_list, gbucket* g, wlist* alt_list, char optimise) {
+static char* guess_by_information_entropy_base(gbucket* guess_board, wlist** word_lists, size_t nword_lists, char optimise) {
+	wlist* alt_list = nword_lists == 2 ? word_lists[1] : word_lists[0];
+	if (word_lists[0] -> length == 0) {
 		return NULL;
 	}
-	if (alt_list == NULL) {
-		alt_list = word_list;
-	}
-	wlist* topick = should_pick_alt_list(word_list, optimise)/*g -> max_guesses - g -> guess_count*/ ? alt_list : word_list;
+	wlist* topick = should_pick_alt_list(word_lists[0], optimise)/*g -> max_guesses - g -> guess_count*/ ? alt_list : word_lists[0];
 	//size_t wlen = gbucket_getlastguess(g) -> length;
 //	struct word_entropy* entropies = malloc(sizeof(struct word_entropy) * topick -> length);
-	char** tmp_word_list = malloc(sizeof(char*) * word_list -> length);
+	char** tmp_word_list = malloc(sizeof(char*) * word_lists[0] -> length);
 //	size_t counter = 0;
 //	wlword* j;
 //	wlist_foreach(j, topick) {
 //		entropies[counter].word = j -> word;
-//		entropies[counter].entropy = get_entropy(word_list, j -> word);
+//		entropies[counter].entropy = get_entropy(word_lists[0], j -> word);
 //		counter++;
 //	}
 	size_t counter = 0;
 	wlword* j;
-	wlist_foreach(j, word_list) {
+	wlist_foreach(j, word_lists[0]) {
 		tmp_word_list[counter] = j -> word;
 		counter++;
 	}
 //	hsort(entropies, topick -> length, sizeof(struct word_entropy), cmpwentropy);
-	hsort(tmp_word_list, word_list -> length, sizeof(char*), cmp_alpha_order);
+	hsort(tmp_word_list, word_lists[0] -> length, sizeof(char*), cmp_alpha_order);
 	counter = 0;
 	//FILE* debug = fopen("debug.log", "wb");
 //	wlist_foreach(j, topick) {
@@ -189,18 +234,19 @@ static char* guess_by_information_entropy_base(wlist* word_list, gbucket* g, wli
 //		counter++;
 //	}
 	counter = 0;
-	wlist_foreach(j, word_list) {
+	wlist_foreach(j, word_lists[0]) {
 		j -> word = tmp_word_list[counter];
 		counter++;
 	}
 	//fclose(debug);
 	free(tmp_word_list);
 //	free(entropies);
-	return word_w_max_entropy(topick, word_list);
+	return word_w_max_entropy(topick, word_lists[0]);
 }
 
-char* guess_by_information_entropy(wlist* l, gbucket* g, wlist* alt_list) {
-	return guess_by_information_entropy_base(l, g, alt_list, 0);
+//char* guess_by_information_entropy(wlist* l, gbucket* g, wlist* alt_list) {
+char* guess_by_information_entropy(gbucket* guess_board, wlist** word_lists, size_t nword_lists) {
+	return guess_by_information_entropy_base(guess_board, word_lists, nword_lists, 0);
 }
 
 /**
@@ -208,6 +254,7 @@ char* guess_by_information_entropy(wlist* l, gbucket* g, wlist* alt_list) {
  * Credit:
  *     https://betterprogramming.pub/building-a-wordle-bot-in-under-100-lines-of-python-9b980539defb
  */
-char* guess_by_information_entropy_optimised_level_1(wlist* l, gbucket* g, wlist* alt_list) {
-	return guess_by_information_entropy_base(l, g, alt_list, 1);
+//char* guess_by_information_entropy_optimised_level_1(wlist* l, gbucket* g, wlist* alt_list) {
+char* guess_by_information_entropy_optimised_level_1(gbucket* guess_board, wlist** word_lists, size_t nword_lists) {
+	return guess_by_information_entropy_base(guess_board, word_lists, nword_lists, 1);
 }

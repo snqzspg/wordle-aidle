@@ -6,7 +6,10 @@
 #include "../utilities/hashmap.h"
 #include "../wordle/guess_bucket.h"
 #include "../wordle/word_list.h"
+#include "../wordle_solver/solver.h"
+#include "../word_list/hardcoded_dictionary.h"
 
+#include "algorithms.h"
 #include "most-frequent-in-column.h"
 
 /**
@@ -59,6 +62,25 @@
 //	return 0;
 //}
 
+void column_popular_init(solver* slvr, algorithm* algo) {
+	wbitem* item;
+	wbank_foreachitem(item, hcded_dict) {
+		wlist_append(slvr -> list_configs[0].list, item -> value);
+	}
+	slvr -> list_configs[0].standard_filter = 1;
+}
+
+void column_popular_larger_init(solver* slvr, algorithm* algo) {
+	wbitem* item;
+	wbank_foreachitem(item, hcded_dict) {
+		wlist_append(slvr -> list_configs[0].list, item -> value);
+	}
+	wbank_foreachitem(item, valid_words) {
+		wlist_append(slvr -> list_configs[0].list, item -> value);
+	}
+	slvr -> list_configs[0].standard_filter = 1;
+}
+
 struct word_score {
 	char* word;
 	size_t score;
@@ -69,27 +91,28 @@ static int cmpwscore(const void *a, const void *b) {
 }
 
 /*
- * NOTE: alt_list could be NULL
+ * NOTE: Only the list at index 0 is displayed to the user
  */
-char* guess_by_freq_cols(wlist* l, gbucket* g, wlist* alt_list) {
-	if (l -> length == 0) {
+//char* guess_by_freq_cols(wlist* l, gbucket* g, wlist* alt_list) {
+char* guess_by_freq_cols(gbucket* guess_board, wlist** word_lists, size_t nword_lists) {
+	if (word_lists[0] -> length == 0) {
 		return NULL;
 	}
-	size_t wlen = gbucket_getlastguess(g) -> length;
+	size_t wlen = gbucket_getlastguess(guess_board) -> length;
 	cts_hmap* d[wlen];
 	for (size_t i = 0; i < wlen; i++) {
 		d[i] = cts_hmap_createhashmap();
 	}
 	wlword* j;
-	wlist_foreach(j, l) {
+	wlist_foreach(j, word_lists[0]) {
 		for (size_t i = 0; i < wlen; i++) {
 			cts_hmap_set(d[i], j -> word[i], cts_hmap_getwdefault(d[i], j -> word[i], 0) + 1);
 		}
 	}
 	size_t count = 0;
-	//size_t score_tally[l -> length];
-	struct word_score scores[l -> length];
-	wlist_foreach(j, l) {
+	//size_t score_tally[word_lists[0] -> length];
+	struct word_score scores[word_lists[0] -> length];
+	wlist_foreach(j, word_lists[0]) {
 		size_t score = 0;
 		for (size_t i = 0; i < wlen; i++) {
 			score += cts_hmap_getwdefault(d[i], j -> word[i], 0);
@@ -100,19 +123,19 @@ char* guess_by_freq_cols(wlist* l, gbucket* g, wlist* alt_list) {
 		count++;
 	}
 
-	hsort(scores, l -> length, sizeof(struct word_score), cmpwscore);
+	hsort(scores, word_lists[0] -> length, sizeof(struct word_score), cmpwscore);
 
 	count = 0;
-	wlist_foreach(j, l) {
+	wlist_foreach(j, word_lists[0]) {
 		j -> word = scores[count].word;
 		count++;
 	}
 
-	char* best_pick = wlist_get(l, 0);
+	char* best_pick = wlist_get(word_lists[0], 0);
 
-	if (alt_list != NULL && l -> length > 2) {
+	if (nword_lists == 2 && word_lists[0] -> length > 2) {
 		size_t max_score = 0;
-		wlist_foreach(j, alt_list) {
+		wlist_foreach(j, word_lists[1]) {
 			size_t score = 0;
 			for (size_t i = 0; i < wlen; i++) {
 				score += cts_hmap_getwdefault(d[i], j -> word[i], 0);
@@ -128,5 +151,5 @@ char* guess_by_freq_cols(wlist* l, gbucket* g, wlist* alt_list) {
 		cts_hmap_deletehashmap(d[i]);
 	}
 	return best_pick;
-	//return wlist_get(l, tallyindex(score_tally, l -> length, getmax(score_tally, l -> length)));
+	//return wlist_get(word_lists[0], tallyindex(score_tally, word_lists[0] -> length, getmax(score_tally, word_lists[0] -> length)));
 }

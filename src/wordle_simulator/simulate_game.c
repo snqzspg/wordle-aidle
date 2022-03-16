@@ -6,7 +6,7 @@
 #include "../about.h"
 #include "../error/print_error.h"
 #include "../settings/settings.h"
-#include "../terminal_helper/ccolours.h"
+#include "../terminal_helper/cons_graphics.h"
 #include "../terminal_helper/helper_fxs.h"
 #include "../utilities/get_tz.h"
 #include "../utilities/input-helper.h"
@@ -21,12 +21,23 @@
 
 #define DAY 86400
 
+static const char banner_lines[5][83] = {
+	" ____  __  _  _  _  _  __     __  ____  ____    _  _   __  ____  ____  __    ____ ",
+	"/ ___)(  )( \\/ )/ )( \\(  )   / _\\(_  _)(  __)  / )( \\ /  \\(  _ \\(    \\(  )  (  __)",
+	"\\___ \\ )( / \\/ \\) \\/ (/ (_/\\/    \\ )(   ) _)   \\ /\\ /(  O ))   / ) D (/ (_/\\ ) _) ",
+	"(____/(__)\\_)(_/\\____/\\____/\\_/\\_/(__) (____)  (_/\\_) \\__/(__\\_)(____/\\____/(____)",
+	"(ASCII Art: Simulate Wordle)"
+};
+
 static void sim_game_print_banner() {
-	printf(" ____  __  _  _  _  _  __     __  ____  ____    _  _   __  ____  ____  __    ____ \n");
-	printf("/ ___)(  )( \\/ )/ )( \\(  )   / _\\(_  _)(  __)  / )( \\ /  \\(  _ \\(    \\(  )  (  __)\n");
-	printf("\\___ \\ )( / \\/ \\) \\/ (/ (_/\\/    \\ )(   ) _)   \\ /\\ /(  O ))   / ) D (/ (_/\\ ) _) \n");
-	printf("(____/(__)\\_)(_/\\____/\\____/\\_/\\_/(__) (____)  (_/\\_) \\__/(__\\_)(____/\\____/(____)\n");
-	printf("(ASCII Art: Simulate Wordle)\n");
+	int cols = pgcg_get_console_cols() - 1;
+	printf("%.*s\n%.*s\n%.*s\n%.*s\n", cols, banner_lines[0], cols, banner_lines[1], cols, banner_lines[2], cols, banner_lines[3]);
+	printf("%s\n", banner_lines[4]);
+//	printf(" ____  __  _  _  _  _  __     __  ____  ____    _  _   __  ____  ____  __    ____ \n");
+//	printf("/ ___)(  )( \\/ )/ )( \\(  )   / _\\(_  _)(  __)  / )( \\ /  \\(  _ \\(    \\(  )  (  __)\n");
+//	printf("\\___ \\ )( / \\/ \\) \\/ (/ (_/\\/    \\ )(   ) _)   \\ /\\ /(  O ))   / ) D (/ (_/\\ ) _) \n");
+//	printf("(____/(__)\\_)(_/\\____/\\____/\\_/\\_/(__) (____)  (_/\\_) \\__/(__\\_)(____/\\____/(____)\n");
+//	printf("(ASCII Art: Simulate Wordle)\n");
 }
 
 static void sim_game_print_version_banner() {
@@ -42,18 +53,18 @@ static void sim_game_print_word_option() {
 	sim_game_print_banner();
 	sim_game_print_version_banner();
 	printf("\n");
-	printf("This is basically a console imitation to the Wordle game.\n");
-	printf("It is meant to test the algorithms coded.\n\n");
+	print_wraped_linef("This is a console imitation of Wordle.", 0, PGINDENT);
+	print_wraped_linef("It is meant to test the algorithms coded.\n", 0, PGINDENT);
 	if (tday_word_expired()) {
-		printf(" 1 - Play with today's word (Not available)\n");
+		print_wraped_linef(" 1 - Play with today's word (Not available)", 1, PGINDENT);
 	} else {
-		printf(" 1 - Play with today's word\n");
+		print_wraped_linef(" 1 - Play with today's word", 1, PGINDENT);
 	}
-	printf(" 2 - Play with a random word\n");
-	printf(" 3 - Play with a specific word\n");
-	printf(" q - Quit\n");
+	print_wraped_linef(" 2 - Play with a random word", 1, PGINDENT);
+	print_wraped_linef(" 3 - Play with a specific word", 1, PGINDENT);
+	print_wraped_linef(" q - Quit", 1, PGINDENT);
 	pgcg_set_note_colour();
-	printf("\nThe algorithms don't know what's today's word..\nI think..\n");
+	print_wraped_linef("\nThe algorithms don't know what's today's word..\nI think..", 0, PGINDENT);
 	pgcg_reset_colour();
 }
 
@@ -74,7 +85,7 @@ static void sim_game_print_intro_page() {
 	printf("\nSimulate Wordle - Instructions\n");
 	sim_game_print_version_banner();
 	printf("\n");
-	printf("You are to guess a mystery five-letter word in six tries.\n");
+	print_wraped_linef("You are to guess a mystery five-letter word in six tries.", 0, PGINDENT);
 	printf("Each word have to be an actual five letter word.\n");
 	printf("After each guess, the guess will be shown with the colours / letters below:\n");
 	printf("    g - green - letter is in the answer and in the correct spot\n");

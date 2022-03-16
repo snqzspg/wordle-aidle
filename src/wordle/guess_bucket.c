@@ -5,7 +5,7 @@
 #include "guess_bucket.h"
 #include "../error/print_error.h"
 #include "../settings/settings.h"
-#include "../terminal_helper/ccolours.h"
+#include "../terminal_helper/cons_graphics.h"
 #include "../utilities/hashmap.h"
 
 const int max_allowed_guesses = 6;
@@ -205,16 +205,15 @@ void gbucket_print(gbucket* l, size_t i) {
 	printf("\n");
 }
 
-static const int spoiler_mode = 0;
-void gbucket_tessresprint(gbucket* l, size_t i) {
+void gbucket_tessresprint(gbucket* l, size_t i, char print_spoiler) {
 	list_lrpair* gs = l -> guesses[i];
 	size_t i1;
 	printf("\n");
-	if (spoiler_mode || colour_blind_mode < 2) {
+	if (print_spoiler || colour_blind_mode < 2) {
 		for (i1 = 0; i1 < gs -> length; i1++) {
 			printf(" ");
 			pgcg_set_tile_colour(list_lrpair_getresult(gs, i1));
-			if (spoiler_mode) {
+			if (print_spoiler) {
 				printf(" %c ", list_lrpair_getletter(gs, i1));
 			} else {
 				printf("   ");
@@ -274,7 +273,7 @@ void gbucket_printall(gbucket* l) {
 	printf("\n");
 }
 
-void gbucket_tessresprintall(gbucket* l, char print_label) {
+void gbucket_tessresprintall(gbucket* l, char print_label, char print_spoiler) {
 	size_t guesses = l -> guess_count;
 	if (print_label) {
 		if (gbucket_won(l)) {
@@ -283,14 +282,14 @@ void gbucket_tessresprintall(gbucket* l, char print_label) {
 			printf("%s X/%lu\n", l -> label == NULL ? "missingno" : l -> label, (long unsigned int)(l -> max_guesses));
 		}
 	}
-	if (spoiler_mode) {
+	if (print_spoiler) {
 		pgcg_set_warning_colour();
 		printf("\nWARNING: SPOILER MODE ENABLED!\n");
 		pgcg_reset_colour();
 	}
 	size_t i;
 	for (i = 0; i < guesses; i++) {
-		gbucket_tessresprint(l, i);
+		gbucket_tessresprint(l, i, print_spoiler);
 	}
 	printf("\nResult: ");
 	if (gbucket_won(l)) {

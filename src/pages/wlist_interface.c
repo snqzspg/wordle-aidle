@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "../sorting/heap_sort.h"
-#include "../terminal_helper/ccolours.h"
+#include "../terminal_helper/cons_graphics.h"
 #include "../terminal_helper/helper_fxs.h"
 #include "../utilities/input-helper.h"
 #include "../utilities/str_util.h"

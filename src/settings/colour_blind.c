@@ -3,12 +3,12 @@
 #include <string.h>
 
 #include "../about.h"
-#include "../terminal_helper/ccolours.h"
+#include "../terminal_helper/cons_graphics.h"
 #include "../terminal_helper/helper_fxs.h"
 #include "../utilities/input-helper.h"
 #include "settings.h"
 
-char random_demo[11][6] = {
+char random_demo[12][6] = {
 	"glenn",
 	"cindy",
 	"derek",
@@ -19,9 +19,10 @@ char random_demo[11][6] = {
 	"nigel",
 	"lucas",
 	"keanu",
-	"tessa"
+	"tessa",
+	"louis"
 };
-const size_t demo_name_count = 11;
+const size_t demo_name_count = 12;
 size_t random_picked = 0;
 size_t namepick;
 char colpick[6];

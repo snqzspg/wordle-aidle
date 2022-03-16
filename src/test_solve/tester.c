@@ -4,7 +4,7 @@
 #include <time.h>
 
 #include "../error/print_error.h"
-#include "../terminal_helper/ccolours.h"
+#include "../terminal_helper/cons_graphics.h"
 #include "../utilities/int_util.h"
 #include "../utilities/time_util.h"
 #include "../wordle/guess_bucket.h"

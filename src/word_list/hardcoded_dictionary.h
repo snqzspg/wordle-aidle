@@ -35,19 +35,19 @@
  *  wench
  *  whore
  */
-const size_t hcded_dict_len;
-const size_t hcded_dict_wlen;
-char** hcded_dict_ordered;
-wbank* hcded_dict;
+extern const size_t hcded_dict_len;
+extern const size_t hcded_dict_wlen;
+extern char** hcded_dict_ordered;
+extern wbank* hcded_dict;
 
-const size_t win_loss_words_len;
-char* win_loss_words[6];
+extern const size_t win_loss_words_len;
+extern char* win_loss_words[6];
 
-//const size_t valid_words = 10657;
-//const char valid_words[10657][6];
+//extern const size_t valid_words = 10657;
+//extern const char valid_words[10657][6];
 
-wbank* valid_words;
-wbank* extra_words;
+extern wbank* valid_words;
+extern wbank* extra_words;
 
 void init_dict();
 void cleanup_dict();

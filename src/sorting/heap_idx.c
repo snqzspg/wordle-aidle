@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #include "../error/print_error.h"
-#include "../terminal_helper/ccolours.h"
+#include "../terminal_helper/cons_graphics.h"
 #include "heap_idx.h"
 
 size_t heap_idx_idxfromrc(const size_t r, const size_t c) {

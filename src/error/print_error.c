@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "../terminal_helper/ccolours.h"
+#include "../terminal_helper/cons_graphics.h"
 
 #include "print_error.h"
 

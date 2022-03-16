@@ -5,7 +5,7 @@
 #define _GNU_SOURCE
 
 #include <time.h>
-#include "../terminal_helper/ccolours.h"
+#include "../terminal_helper/cons_graphics.h"
 #endif // _WIN32
 
 #include "get_tz.h"

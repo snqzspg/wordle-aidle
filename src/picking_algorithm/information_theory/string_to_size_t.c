@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "../../error/print_error.h"
-#include "../../terminal_helper/ccolours.h"
+#include "../../terminal_helper/cons_graphics.h"
 #include "string_to_size_t.h"
 #include "stts_item.h"
 

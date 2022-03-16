@@ -54,11 +54,11 @@ The folder `__build_tmp__` will be created during the building process. You can 
 **NOTE:** Running the above command will delete **everything** inside the `__build_tmp__` folder, including any new stuff you've put inside or stuff you happen to have in the folder before building.
 
 ## Features
-This app is hardcoded with all 12947 valid words that Wordle accepts as answers, including the 2309 Wordle answers. 
+This app is hardcoded with all 12972 valid words that Wordle accepts as answers, including the 2309 Wordle answers. 
 
 *Note that there are other programmers stating that there are 2315 words. That is because they were fetching from an old word list from Wordle before NYT deleted words that are considered sensitive or offensive. The 25 deleted words are in a comment in the hardcoded dictionary source file.*
 
-In addition, there are 5837 additional hardcoded words that are not considered valid for Wordle, collated from different sources. The sources are in the comments of the hardcoded dictionary source file.
+In addition, there are 5812 additional hardcoded words that are not considered valid for Wordle, collated from different sources. The sources are in the comments of the hardcoded dictionary source file.
 
 *This project is having its first days on GitHub. It need time to adopt to it's new envrionment.
 Stay tuned as this page is in the progress of making. The rest is to be written...*

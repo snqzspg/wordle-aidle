@@ -16,4 +16,8 @@ void pgcg_set_distro_bar_colour();
 void pgcg_reset_colour();
 void pgcg_reset_colour_stderr();
 
+int pgcg_get_console_rows();
+int pgcg_get_console_cols();
+void pgcg_cpy_console_rows_cols(int* rowsptr, int* colsptr);
+
 #endif // CCOLOURS_H_INCLUDED

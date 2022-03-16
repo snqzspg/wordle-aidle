@@ -3,7 +3,7 @@
 
 #include "../utilities/hashmap.h"
 
-const int max_allowed_guesses;
+extern const int max_allowed_guesses;
 
 typedef struct letter_result_pair {
 	char letter;
@@ -76,7 +76,7 @@ char gbucket_lost(gbucket* l);
 void gbucket_print(gbucket* l, size_t i);
 void gbucket_writeres_file(gbucket* l, FILE* f, size_t i, char dark_mode, char high_contrast);
 void gbucket_printall(gbucket* l);
-void gbucket_tessresprintall(gbucket* l, char print_label);
+void gbucket_tessresprintall(gbucket* l, char print_label, char print_spoiler);
 void gbucket_writeres_all_file(gbucket* l, FILE* f, char dark_mode, char high_contrast);
 //void gbucket_remove(gbucket* l, char letter, char result);
 //void gbucket_removei(gbucket* l, size_t i);

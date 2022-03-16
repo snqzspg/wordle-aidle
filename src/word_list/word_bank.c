@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "../error/print_error.h"
-#include "../terminal_helper/ccolours.h"
+#include "../terminal_helper/cons_graphics.h"
 #include "wbitem.h"
 #include "word_bank.h"
 

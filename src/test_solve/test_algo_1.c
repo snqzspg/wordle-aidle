@@ -7,7 +7,7 @@
 #include "../picking_algorithm/hybrid.h"
 #include "../picking_algorithm/most-frequent-in-column.h"
 #include "../picking_algorithm/random_pick.h"
-#include "../terminal_helper/ccolours.h"
+#include "../terminal_helper/cons_graphics.h"
 #include "../terminal_helper/helper_fxs.h"
 #include "../wordle_solver/solver.h"
 #include "../wordle/word_list.h"
@@ -134,7 +134,7 @@ int test_algo_1_thread(wlist* word_list, const int algorithm, const char* starti
 	const size_t total_pages = session -> total_words + 1;
 	size_t current_page = 0;
 	char invalid = 0;
-	while (!results_page_loop(session, &current_page, total_pages, &invalid)) {}
+	while (!results_page_loop(session, &current_page, total_pages, &invalid));
 	test_sess_delete(session);
 	return 0;
 }

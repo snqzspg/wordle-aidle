@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "../error/print_error.h"
-#include "../terminal_helper/ccolours.h"
+#include "../terminal_helper/cons_graphics.h"
 #include "../wordle_stats.h"
 #include "guess_bucket.h"
 #include "wlgame.h"

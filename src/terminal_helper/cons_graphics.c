@@ -5,9 +5,12 @@
 #include <io.h>
 #include <string.h>
 #include <Windows.h>
+#else
+#include <sys/ioctl.h>
+#include <unistd.h>
 #endif // _WIN32
 
-#include "ccolours.h"
+#include "cons_graphics.h"
 
 #ifdef _WIN32
 CONSOLE_SCREEN_BUFFER_INFO console_info;
@@ -163,5 +166,46 @@ void pgcg_reset_colour_stderr() {
 	SetConsoleTextAttribute(stderr_console_handle, saved_attributes);
 	#else
 	fprintf(stderr, "\x1b[0m");
+	#endif // _WIN32
+}
+
+/**
+ * Thanks! https://stackoverflow.com/questions/6812224/getting-terminal-size-in-c-for-windows/12642749#12642749
+ */
+int pgcg_get_console_rows() {
+	#ifdef _WIN32
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	GetConsoleScreenBufferInfo(console_handle, &csbi);
+	return (int) csbi.srWindow.Bottom - (int) csbi.srWindow.Top + 1;
+	#else
+	struct winsize ws;
+	ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
+	return ws.ws_row;
+	#endif // _WIN32
+}
+
+int pgcg_get_console_cols() {
+	#ifdef _WIN32
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	GetConsoleScreenBufferInfo(console_handle, &csbi);
+	return (int) csbi.dwSize.X;
+	#else
+	struct winsize ws;
+	ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
+	return ws.ws_col;
+	#endif // _WIN32
+}
+
+void pgcg_cpy_console_rows_cols(int* rowsptr, int* colsptr) {
+	#ifdef _WIN32
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	GetConsoleScreenBufferInfo(console_handle, &csbi);
+	*rowsptr = (int) csbi.dwSize.X;
+	*colsptr = (int) csbi.srWindow.Bottom - (int) csbi.srWindow.Top + 1;
+	#else
+	struct winsize ws;
+	ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
+	*rowsptr = ws.ws_row;
+	*colsptr = ws.ws_col;
 	#endif // _WIN32
 }

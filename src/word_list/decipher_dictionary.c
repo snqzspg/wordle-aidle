@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../terminal_helper/ccolours.h"
+#include "../terminal_helper/cons_graphics.h"
 
 #define bool char
 #define true 1

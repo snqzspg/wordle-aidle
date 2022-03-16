@@ -1,3 +1,8 @@
+v0.3.2
+ - Added detection of console sizes (Works on UNIX and Windows)
+ - Some indented texts now warp with indents - although they will not adjust while you resize.
+ - Further code restructuring works.
+
 v0.3.1.1
  - Updated the word list in this app as Wordle had its word list changed.
 

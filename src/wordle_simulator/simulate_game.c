@@ -10,6 +10,7 @@
 #include "../terminal_helper/helper_fxs.h"
 #include "../utilities/get_tz.h"
 #include "../utilities/input-helper.h"
+#include "../utilities/int_util.h"
 #include "../utilities/obfuscator.h"
 #include "../utilities/str_util.h"
 #include "../wordle/guess_bucket.h"
@@ -21,6 +22,7 @@
 
 #define DAY 86400
 
+static const size_t banner_lines_count = 5;
 static const char banner_lines[5][83] = {
 	" ____  __  _  _  _  _  __     __  ____  ____    _  _   __  ____  ____  __    ____ ",
 	"/ ___)(  )( \\/ )/ )( \\(  )   / _\\(_  _)(  __)  / )( \\ /  \\(  _ \\(    \\(  )  (  __)",
@@ -29,15 +31,40 @@ static const char banner_lines[5][83] = {
 	"(ASCII Art: Simulate Wordle)"
 };
 
+static const size_t displaimer_lines_count = 5;
+static const char displaimer_lines[5][68] = {
+	" ____   __   ____   ___  __     __    __   _  _  ____  ____   _   ",
+	"(    \\ (  ) / ___) / __)(  )   / _\\  (  ) ( \\/ )(  __)(  _ \\ / \\  ",
+	" ) D (  )(  \\___ \\( (__ / (_/\\/    \\  )(  / \\/ \\ ) _)  )   / \\_/  ",
+	"(____/ (__) (____/ \\___)\\____/\\_/\\_/ (__) \\_)(_/(____)(__\\_) (_)  ",
+	"(ASCII Art: DISCLAIMER!)"
+};
+
+//static void print_fitted_banner(char[][] lines, size_t count) {
+//	int cols = pgcg_get_console_cols() - 1;
+//	for (; count > 0; count--) {
+//		printf("%.*s\n", cols, lines[count - 1]);
+//	}
+//}
+
 static void sim_game_print_banner() {
 	int cols = pgcg_get_console_cols() - 1;
-	printf("%.*s\n%.*s\n%.*s\n%.*s\n", cols, banner_lines[0], cols, banner_lines[1], cols, banner_lines[2], cols, banner_lines[3]);
-	printf("%s\n", banner_lines[4]);
-//	printf(" ____  __  _  _  _  _  __     __  ____  ____    _  _   __  ____  ____  __    ____ \n");
-//	printf("/ ___)(  )( \\/ )/ )( \\(  )   / _\\(_  _)(  __)  / )( \\ /  \\(  _ \\(    \\(  )  (  __)\n");
-//	printf("\\___ \\ )( / \\/ \\) \\/ (/ (_/\\/    \\ )(   ) _)   \\ /\\ /(  O ))   / ) D (/ (_/\\ ) _) \n");
-//	printf("(____/(__)\\_)(_/\\____/\\____/\\_/\\_/(__) (____)  (_/\\_) \\__/(__\\_)(____/\\____/(____)\n");
-//	printf("(ASCII Art: Simulate Wordle)\n");
+//	printf("%.*s\n%.*s\n%.*s\n%.*s\n", cols, banner_lines[0], cols, banner_lines[1], cols, banner_lines[2], cols, banner_lines[3]);
+//	printf("%s\n", banner_lines[4]);
+	for (size_t i = 0; i < banner_lines_count; i++) {
+		printf("%.*s\n", cols, banner_lines[i]);
+	}
+}
+
+static void sim_game_print_disclaimer_banner() {
+	int cols = pgcg_get_console_cols() - 1;
+//	printf("%.*s\n%.*s\n%.*s\n%.*s\n", cols, displaimer_lines[0], cols, displaimer_lines[1], cols, displaimer_lines[2], cols, displaimer_lines[3]);
+//	printf("%s\n", displaimer_lines[4]);
+	pgcg_set_warning_colour();
+	for (size_t i = 0; i < displaimer_lines_count; i++) {
+		printf("%.*s\n", cols, displaimer_lines[i]);
+	}
+	pgcg_reset_colour();
 }
 
 static void sim_game_print_version_banner() {
@@ -48,24 +75,52 @@ static char tday_word_expired() {
 	return time(NULL) + get_timezoneoffset_s() < wordle_word_0;
 }
 
+static void sim_game_print_disclaimer() {
+	clear_console();
+	sim_game_print_disclaimer_banner();
+	printf("\n");
+	print_wraped_linef("Recently, The New York Times (NYT) has requested to shut down Wordle Archive, because (as quoted by a New York Times representative):", 0, PGINDENT);
+	print_wraped_linef("\"The usage was unauthorized, and we were in touch with them\"", 1, PGINDENT);
+	print_wraped_linef("The representative also said, \"We don't plan to comment beyond that,\" leaving us with no clues on what are the fates of Wordle imitations.", 0, PGINDENT);
+	print_wraped_linef("It's the first time that the NYT has actively taken down a Wordle-like game. This might indicate a threat for all existing Wordle clone games, especially those that use the official Wordle list like this solver.", 0, PGINDENT);
+	print_wraped_linef("The NYT had also filed for a trademark for Wordle when they bought the game, but there's no evidence that the trademark had been enforced.", 0, PGINDENT);
+	print_wraped_linef("Speculation: It is possible that the NYT is intending to put ads on Wordle to earn ad revenue, and any clone games are a threat to their business.", 0, PGINDENT);
+	print_wraped_linef("However, since this project does not have large attention, I will include a feature to allow you to play past Wordle words. This keeps the archives accessible for the time being.", 0, PGINDENT);
+	print_wraped_linef("Also, I will be adding a warning for each of the games that are logged to make it clear that only official scores on the NYT are counted.", 0, PGINDENT);
+	print_wraped_linef("In case of a threat by the NYT, the name of this tool is subject to change, and some of the solver's features, or the entire solver itself, might have to be removed.", 0, PGINDENT);
+	print_wraped_linef("If the worst happens, you may still email snqzspg@gmail.com if you want a copy of this solver, though I might not be able to fulfill mass requests.", 0, PGINDENT);
+	printf("\nBy continuing, I would assume that you have understood the situation.\n");
+	pause_console();
+}
+
 static void sim_game_print_word_option() {
 	clear_console();
 	sim_game_print_banner();
 	sim_game_print_version_banner();
+
 	printf("\n");
-	print_wraped_linef("This is a console imitation of Wordle.", 0, PGINDENT);
-	print_wraped_linef("It is meant to test the algorithms coded.\n", 0, PGINDENT);
+	print_wraped_linef("This is a console imitation of Wordle by the New York Times.", 0, PGINDENT);
+	print_wraped_linef("This is meant to test the algorithms coded.\n", 0, PGINDENT);
 	if (tday_word_expired()) {
 		print_wraped_linef(" 1 - Play with today's word (Not available)", 1, PGINDENT);
 	} else {
 		print_wraped_linef(" 1 - Play with today's word", 1, PGINDENT);
 	}
-	print_wraped_linef(" 2 - Play with a random word", 1, PGINDENT);
-	print_wraped_linef(" 3 - Play with a specific word", 1, PGINDENT);
+	print_wraped_linef(" 2 - Play with past words", 1, PGINDENT);
+	print_wraped_linef(" 3 - Play with a random word", 1, PGINDENT);
+	print_wraped_linef(" 4 - Play with a specific word", 1, PGINDENT);
 	print_wraped_linef(" q - Quit", 1, PGINDENT);
 	pgcg_set_note_colour();
 	print_wraped_linef("\nThe algorithms don't know what's today's word..\nI think..", 0, PGINDENT);
 	pgcg_reset_colour();
+}
+
+static void sim_game_print_archive_option(size_t min, size_t max) {
+	clear_console();
+	printf("\nSimulate Wordle - Pick an archive\n");
+	printf("Type the number to pick the corresponding archive. (%lu - %lu)\n", (long unsigned) min, (long unsigned) max);
+	printf("Leave blank for a random pick.\n");
+	printf("Type 'q' to quit.\n");
 }
 
 static void sim_game_set_col(char c) {
@@ -112,15 +167,6 @@ static void sim_game_print_intro_page() {
 static char* sim_game_prompt_input() {
 	printf("5-letter word >> ");
 	return ask_user();
-}
-
-static void lowercase_ascii(char* s) {
-	if (s == NULL) return;
-	for (; *s != '\0'; s++) {
-		if ('A' <= *s && *s <= 'Z') {
-			*s += 32;
-		}
-	}
 }
 
 static char is_available_alphebet(const char c) {
@@ -183,23 +229,23 @@ static char select_word_page(char* solnbuffer) {
 	return 0;
 }
 
-static size_t num_digit(size_t n) {
-	size_t d = 1;
-	while (n >= 10){
-		n /= 10;
-		d++;
-	}
-	return d;
-}
+//static size_t num_digit(size_t n) {
+//	size_t d = 1;
+//	while (n >= 10){
+//		n /= 10;
+//		d++;
+//	}
+//	return d;
+//}
 
-static void cpynumstr(char* buf, size_t n, size_t ndigits) {
-	buf[ndigits] = '\0';
-	while (ndigits) {
-		buf[ndigits - 1] = (char)(48 + (n % 10));
-		n /= 10;
-		ndigits--;
-	}
-}
+//static void cpynumstr(char* buf, size_t n, size_t ndigits) {
+//	buf[ndigits] = '\0';
+//	while (ndigits) {
+//		buf[ndigits - 1] = (char)(48 + (n % 10));
+//		n /= 10;
+//		ndigits--;
+//	}
+//}
 
 /**
  * Delete using free()
@@ -256,6 +302,40 @@ static void feedback_user(const char* input) {
 /**
  *  Return 1 if should quit, 0 otherwise.
  */
+static char archive_number_selection(char* soln, char** label) {
+	size_t max = wordle_get_tday_num() - 1;
+	while (1) {
+		sim_game_print_archive_option(1, max);
+		printf("\n >> ");
+		char* a = ask_user();
+		if (a == NULL || *a == '\0') {
+			free(a);
+			size_t rng = (rand() % max) + 1;
+			wordle_cpy_day_word(rng, soln);
+			*label = create_wdle_label_num(rng);
+			return 0;
+		}
+		if (strcmp(a, "q") == 0) {
+			free(a);
+			return 1;
+		}
+		if (is_pure_unsigned_number(a)) {
+			size_t idx = idx_from_str(a);
+			free(a);
+			if (idx < 1 || idx > max) {
+				continue;
+			}
+			wordle_cpy_day_word(idx, soln);
+			*label = create_wdle_label_num(idx);
+			return 0;
+		}
+		free(a);
+	}
+}
+
+/**
+ *  Return 1 if should quit, 0 otherwise.
+ */
 static char word_option_page(char* soln, char** label, char* mode_3) {
 	while (1) {
 		sim_game_print_word_option();
@@ -276,11 +356,18 @@ static char word_option_page(char* soln, char** label, char* mode_3) {
 		}
 		if (strcmp(a, "2") == 0) {
 			free(a);
+			if (archive_number_selection(soln, label)) {
+				return 1;
+			}
+			break;
+		}
+		if (strcmp(a, "3") == 0) {
+			free(a);
 			size_t rng = wordle_cpy_rand_word(soln);
 			*label = create_wdle_label_num(rng);
 			break;
 		}
-		if (strcmp(a, "3") == 0) {
+		if (strcmp(a, "4") == 0) {
 			free(a);
 			if (select_word_page(soln)) {
 				return 1;
@@ -319,7 +406,7 @@ static char game_input_page(wlgame* game, const char mode_3) {
 			}
 			free(input);
 			input = sim_game_prompt_input();
-			lowercase_ascii(input);
+			lowercase(input);
 			if (input != NULL && !strcmp(input, "q")) {
 				free(input);
 				return 1;
@@ -335,6 +422,7 @@ static char game_input_page(wlgame* game, const char mode_3) {
 }
 
 void sim_game_thread() {
+	sim_game_print_disclaimer();
 	char soln[wordle_word_length + 1];
 	char *label = NULL;
 	char mode_3 = 0;

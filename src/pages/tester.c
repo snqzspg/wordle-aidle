@@ -93,7 +93,7 @@ static void print_mode_title() {
 static void print_alg_info(int algo) {
 	if (algo == 9) {
 		pgcg_set_warning_colour();
-		printf("    WARNING: Statistical algorithms can be very slow!\n    Especially if it can pick non-hard-mode words!\n    Proceed only if you have the patience :D\n");
+		printf("    WARNING: Information Theory algorithms can be very slow!\n    Especially if it can pick non-hard-mode words!\n    Proceed only if you have the patience :D\n");
 		pgcg_reset_colour();
 	}
 }
@@ -163,56 +163,61 @@ int select_starting_word(char* buffer) {
 	return 0;
 }
 
-void testing_screen(const int algo) {
+void testing_screen(const int algo, const char* starting_word) {
 	clear_console();
 	print_title_banner();
+	// Code smell: New registry system should perfume this.
 	switch (algo) {
 	case 1:
-		printf("\nPerforming test on Popular in position\n\n");
+		printf("\nPerforming test on Popular in position\n");
 		break;
 	case 2:
-		printf("\nPerforming test on Popular in position (Larger vocabulary)\n\n");
+		printf("\nPerforming test on Popular in position (Larger vocabulary)\n");
 		break;
 	case 3:
-		printf("\nPerforming test on Statistical Algorithm (Hard mode)\n\n");
+		printf("\nPerforming test on Information Theory Algorithm (Hard mode)\n");
 		break;
 	case 4:
-		printf("\nPerforming test on Statistical Algorithm (Hard mode) (Larger vocabulary)\n\n");
+		printf("\nPerforming test on Information Theory Algorithm (Hard mode) (Larger vocabulary)\n");
 		break;
 	case 5:
-		printf("\nPerforming test on Statistical Algorithm (No hard mode)\n\n");
+		printf("\nPerforming test on Information Theory Algorithm (No hard mode)\n");
 		break;
 	case 6:
-		printf("\nPerforming test on Statistical Algorithm (No hard mode) (Resilient)\n\n");
+		printf("\nPerforming test on Information Theory Algorithm (No hard mode) (Resilient)\n");
 		break;
 	case 7:
-		printf("\nPerforming test on Statistical Algorithm (No hard mode) (Slightly Optimised)\n\n");
+		printf("\nPerforming test on Information Theory Algorithm (No hard mode) (Slightly Optimised)\n");
 		break;
 	case 8:
-		printf("\nPerforming test on Statistical Algorithm (No hard mode) (Larger vocabulary) (Slightly Optimised)\n\n");
+		printf("\nPerforming test on Information Theory Algorithm (No hard mode) (Larger vocabulary) (Slightly Optimised)\n");
 		break;
 	case 9:
-		printf("\nPerforming test on Matt Dodge Hybrid Algorithm (No hard mode)\n\n");
+		printf("\nPerforming test on Matt Dodge Hybrid Algorithm (No hard mode)\n");
 		break;
 	case 10:
-		printf("\nPerforming test on Matt Dodge Hybrid Algorithm (No hard mode) (Larger vocabulary)\n\n");
+		printf("\nPerforming test on Matt Dodge Hybrid Algorithm (No hard mode) (Larger vocabulary)\n");
 		break;
 	case 11:
-		printf("\nPerforming test on Random guess Algorithm\n\n");
+		printf("\nPerforming test on Random guess Algorithm\n");
 		break;
 	case 12:
-		printf("\nPerforming test on Random guess Algorithm (Larger vocabulary)\n\n");
+		printf("\nPerforming test on Random guess Algorithm (Larger vocabulary)\n");
 		break;
 	default:
-		printf("\nPerforming test on Algorithm ?\n\n");
+		printf("\nPerforming test on Algorithm ?\n");
 	}
+	char tmp[strlen(starting_word) + 1];
+	strcpy(tmp, starting_word);
+	uppercase(tmp);
+	printf("Starting word: %s\n\n", tmp);
 }
 
 void print_test_line(test_sess* session) {
-	printf("\r");
 	print_progress_bar_u(session -> progress, session -> total_words, 30);
 	printf(" Wordle %u/%u, time ", session -> progress, session -> total_words);
 	print_time_format_2dp(session -> time_taken);
+	printf("\r");
 	fflush(stdout);
 }
 
@@ -502,7 +507,7 @@ void tester_thread() {
 		wlist_delete(test_list);
 		return;
 	}
-	testing_screen(algorithm);
+	testing_screen(algorithm, starting_word);
 	if (test_algo_1_thread(test_list, algorithm, starting_word)) {
 		wlist_delete(test_list);
 		return;

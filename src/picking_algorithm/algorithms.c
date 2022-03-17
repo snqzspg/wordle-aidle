@@ -178,6 +178,25 @@ void alcats_clear() {
 }
 
 /**
+ * A temporary array to store the names of the variables in order.
+ * Once the new algorithm registry system is ready, this will be removed.
+ */
+const char algorithm_names[12][67] = {
+	"Popular in position",
+	"Popular in position (Larger vocabulary)",
+	"Information Theory (Hard mode)",
+	"Information Theory (Hard mode) (Larger vocabulary)",
+	"Information Theory (No hard mode)",
+	"Information Theory (No hard mode) (Resilient)",
+	"Information Theory (No hard mode) (Slightly Optimised)",
+	"Information Theory (No hard mode) (Resilient) (Slightly Optimised)",
+	"Matt Dodge Hybrid (No hard mode)",
+	"Matt Dodge Hybrid (No hard mode) (Resilient)",
+	"Random guess",
+	"Random guess (Larger vocabulary)"
+};
+
+/**
  * Returns 1 if asked to cancel.
  * The selected algorithm will be copied into the dereferenced algo variable.
  */
@@ -192,17 +211,17 @@ int select_algo_page(void (*print_title_stuff)(), int* algo, void (*print_algo_a
 		if (print_algo_add_info != NULL) print_algo_add_info(0);
 		print_wraped_linef("2 - Popular in position (Larger vocabulary)", 1, PGINDENT);
 		if (print_algo_add_info != NULL) print_algo_add_info(1);
-		print_wraped_linef("3 - Statistical (Hard mode)", 1, PGINDENT);
+		print_wraped_linef("3 - Information Theory (Hard mode)", 1, PGINDENT);
 		if (print_algo_add_info != NULL) print_algo_add_info(2);
-		print_wraped_linef("4 - Statistical (Hard mode) (Larger vocabulary)", 1, PGINDENT);
+		print_wraped_linef("4 - Information Theory (Hard mode) (Larger vocabulary)", 1, PGINDENT);
 		if (print_algo_add_info != NULL) print_algo_add_info(3);
-		print_wraped_linef("w - Statistical (No hard mode)", 1, PGINDENT);
+		print_wraped_linef("w - Information Theory (No hard mode)", 1, PGINDENT);
 		if (print_algo_add_info != NULL) print_algo_add_info(4);
-		print_wraped_linef("e - Statistical (No hard mode) (Resilient)", 1, PGINDENT);
+		print_wraped_linef("e - Information Theory (No hard mode) (Resilient)", 1, PGINDENT);
 		if (print_algo_add_info != NULL) print_algo_add_info(5);
-		print_wraped_linef("r - Statistical (No hard mode) (Slightly Optimised)", 1, PGINDENT);
+		print_wraped_linef("r - Information Theory (No hard mode) (Slightly Optimised)", 1, PGINDENT);
 		if (print_algo_add_info != NULL) print_algo_add_info(6);
-		print_wraped_linef("a - Statistical (No hard mode) (Resilient) (Slightly Optimised)", 1, PGINDENT);
+		print_wraped_linef("a - Information Theory (No hard mode) (Resilient) (Slightly Optimised)", 1, PGINDENT);
 		if (print_algo_add_info != NULL) print_algo_add_info(7);
 		print_wraped_linef("s - Matt Dodge Hybrid (No hard mode)", 1, PGINDENT);
 		if (print_algo_add_info != NULL) print_algo_add_info(8);

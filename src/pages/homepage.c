@@ -9,6 +9,7 @@
 #include "../terminal_helper/helper_fxs.h"
 #include "../utilities/hashmap.h"
 #include "../utilities/input-helper.h"
+#include "../utilities/str_util.h"
 #include "../wordle_simulator/simulate_game.h"
 
 #include "tester.h"
@@ -42,6 +43,7 @@ char print_clear_warning() {
 	printf("(Provided that your terminal supports it.)\n");
 	printf("Enter 'c' to continue or leave blank to quit: ");
 	char* input = ask_user();
+	lowercase(input);
 	if (input != NULL && strcmp(input, "c") == 0) {
 		free(input);
 		return 0;

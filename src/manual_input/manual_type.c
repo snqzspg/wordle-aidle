@@ -83,7 +83,7 @@ static void print_algo_info(int algo) {
 	pgcg_set_note_colour();
 	switch (algo) {
 	case 7:
-		printf("    Statistical algorithms have time complexities of O(n^2).\n");
+		printf("    Information Theory algorithms have time complexities of O(n^2).\n");
 		break;
 	case 11:
 		printf("    Larger vocabulary/resilient algorithms avoids dependency\n    on official Wordle answers.\n");

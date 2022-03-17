@@ -7,6 +7,7 @@
 #include "../terminal_helper/cons_graphics.h"
 #include "../utilities/int_util.h"
 #include "../utilities/time_util.h"
+#include "../utilities/str_util.h"
 #include "../wordle/guess_bucket.h"
 #include "../wordle/wlgame.h"
 #include "../wordle/word_list.h"
@@ -23,6 +24,10 @@ void guess_dist_log_count(guess_dist* g, size_t guesscount) {
 	g -> counts[guesscount]++;
 }
 
+void guess_dist_log_fail(guess_dist* g) {
+	g -> fails++;
+}
+
 unsigned int guess_dist_get(guess_dist* g, size_t guesscount) {
 	if (guesscount > g -> max_guesses) {
 		print_error_ln("guess_dist attempt to log a guess count higher than allowed.");
@@ -30,6 +35,10 @@ unsigned int guess_dist_get(guess_dist* g, size_t guesscount) {
 	}
 	guesscount--;
 	return g -> counts[guesscount];
+}
+
+unsigned int guess_dist_get_fails(guess_dist* g) {
+	return g -> fails;
 }
 
 static void guess_dist_print_bar(int bar_len) {
@@ -59,7 +68,7 @@ static unsigned int guess_dist_mode_count(guess_dist* g) {
 }
 
 static unsigned int guess_dist_total_count(guess_dist* g) {
-	unsigned int total = 0;
+	unsigned int total = g -> fails;
 	for (unsigned int i = 0; i < g -> max_guesses; i++) {
 		total += g -> counts[i];
 	}
@@ -83,6 +92,19 @@ void guess_dist_print_bars(guess_dist* g, int maxbarsize) {
 			guess_dist_print_bar((int) (g -> counts[i]) * maxbarsize / max_val);
 		}
 	}
+
+	// Print fails
+	printf("X: %u", g -> fails);
+	if (total == 0) {
+		printf("\n");
+	} else {
+		printf(" (%.2f%%)\n", (double)(g -> fails) * 100 / (double) total);
+	}
+	if (max_val == 0) {
+		printf("\n");
+	} else {
+		guess_dist_print_bar((int) (g -> fails) * maxbarsize / max_val);
+	}
 }
 
 void guess_dist_log_bars(FILE* f, guess_dist* g, int maxbarsize) {
@@ -102,6 +124,19 @@ void guess_dist_log_bars(FILE* f, guess_dist* g, int maxbarsize) {
 			guess_dist_log_bar(f, (int) (g -> counts[i]) * maxbarsize / max_val);
 		}
 	}
+
+	// Log fails
+	fprintf(f, "X: %u", g -> fails);
+	if (total == 0) {
+		fprintf(f, "\n");
+	} else {
+		fprintf(f, " (%.2f%%)\n", (double)(g -> fails) * 100 / (double) total);
+	}
+	if (max_val == 0) {
+		fprintf(f, "\n");
+	} else {
+		guess_dist_log_bar(f, (int) (g -> fails) * maxbarsize / max_val);
+	}
 }
 
 guess_dist* guess_dist_create(size_t max_guesses) {
@@ -119,6 +154,7 @@ guess_dist* guess_dist_create(size_t max_guesses) {
 		nd -> counts[i] = 0;
 	}
 	nd -> max_guesses = max_guesses;
+	nd -> fails = 0;
 	return nd;
 }
 
@@ -181,6 +217,7 @@ static void test_sess_test_word(test_sess* t, char* answer) {
 	}
 	if (gbucket_lost(game -> board)) {
 		t -> fail_count++;
+		guess_dist_log_fail(t -> distribution);
 		t -> worst_score = max_allowed_guesses + 1;
 	}
 	t -> delete_slvr(slvr, t);
@@ -199,15 +236,6 @@ void test_sess_execute_singlethread(test_sess* t, void (*print_fx)(test_sess* ts
 	t -> time_taken = ((double)(clock() - temps)) / CLOCKS_PER_SEC;
 }
 
-static void uppercase_ascii(char* s) {
-	if (s == NULL) return;
-	for (; *s != '\0'; s++) {
-		if ('a' <= *s && *s <= 'z') {
-			*s -= 32;
-		}
-	}
-}
-
 int test_sess_log_result(test_sess* t, const char* logname) {
 	FILE* logfile = fopen(logname, "wb");
 	if (logfile == NULL) {
@@ -216,7 +244,8 @@ int test_sess_log_result(test_sess* t, const char* logname) {
 	fprintf(logfile, "--- Results ---\n");
 	char sw[strlen(t -> starting_word) + 1];
 	strcpy(sw, t -> starting_word);
-	uppercase_ascii(sw);
+	uppercase(sw);
+	fprintf(logfile, "Algorithm: %s\n", t -> algorithm_name);
 	fprintf(logfile, "Starting word: %s\n", sw);
 	fprintf(logfile, "Words tested: %u\n", t -> total_words);
 	fprintf(logfile, "Passed: %u (%.2f%%)\n", t -> pass_count, (double)(t -> pass_count) * 100 / (double)(t -> total_words));
@@ -251,7 +280,8 @@ void test_sess_print_result(test_sess* t) {
 	printf("--- Results ---\n");
 	char sw[strlen(t -> starting_word) + 1];
 	strcpy(sw, t -> starting_word);
-	uppercase_ascii(sw);
+	uppercase(sw);
+	printf("Algorithm: %s\n", t -> algorithm_name);
 	printf("Starting word: %s\n", sw);
 	printf("Words tested: %u\n", t -> total_words);
 	printf("Passed: %u (%.2f%%)\n", t -> pass_count, (double)(t -> pass_count) * 100 / (double)(t -> total_words));
@@ -303,7 +333,7 @@ size_t test_sess_last_unsuccessful(test_sess* t, size_t start, size_t fallback) 
 	return fallback;
 }
 
-test_sess* test_sess_create(wlist* list_to_test, const char* starting_word, void* (*create_slvr) (test_sess* session), char (*slvr_open) (void* s, test_sess* session), const char* (*slvr_suggest) (void* s, test_sess* session), void (*slvr_receive_result) (void* s, test_sess* session, char* word, char* result), void (*delete_slvr) (void* s, test_sess* session)) {
+test_sess* test_sess_create(wlist* list_to_test, const char* algo_name, const char* starting_word, void* (*create_slvr) (test_sess* session), char (*slvr_open) (void* s, test_sess* session), const char* (*slvr_suggest) (void* s, test_sess* session), void (*slvr_receive_result) (void* s, test_sess* session, char* word, char* result), void (*delete_slvr) (void* s, test_sess* session)) {
 	test_sess* newsession = malloc(sizeof(test_sess));
 	if (newsession == NULL) {
 		print_error_ln("test_sess nooo no more RAM left....");
@@ -323,9 +353,19 @@ test_sess* test_sess_create(wlist* list_to_test, const char* starting_word, void
 		return NULL;
 	}
 
+	newsession -> algorithm_name = malloc(sizeof(char) * (strlen(algo_name) + 1));
+	if (newsession -> algorithm_name == NULL) {
+		print_error_ln("");
+		wlist_delete(newsession -> game_wlist);
+		free(newsession);
+		return NULL;
+	}
+	strcpy(newsession -> algorithm_name, algo_name);
+
 	newsession -> starting_word = malloc(sizeof(char) * (strlen(starting_word) + 1));
 	if (newsession -> starting_word == NULL) {
 		print_error_ln("test_sess nooo no more RAM left....");
+		free(newsession -> algorithm_name);
 		wlist_delete(newsession -> game_wlist);
 		free(newsession);
 		return NULL;
@@ -375,6 +415,8 @@ void test_sess_delete(test_sess* t) {
 	guess_dist_delete(t -> distribution);
 	test_sess_clear_boards(t);
 	free(t -> boards);
+	free(t -> algorithm_name);
+	free(t -> starting_word);
 	wlist_delete(t -> game_wlist);
 	free(t);
 }

@@ -20,8 +20,20 @@ bool str_islen(const char *s, size_t len) {
 }
 
 void lowercase(char* s) {
+	if (s == NULL) {
+		return;
+	}
 	for (; *s != '\0'; s++) {
 		*s = (char) tolower(*s);
+	}
+}
+
+void uppercase(char* s) {
+	if (s == NULL) {
+		return;
+	}
+	for (; *s != '\0'; s++) {
+		*s = (char) toupper(*s);
 	}
 }
 

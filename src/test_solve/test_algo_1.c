@@ -3,6 +3,7 @@
 
 #include "../error/print_error.h"
 #include "../pages/tester.h"
+#include "../picking_algorithm/algorithms.h"
 #include "../picking_algorithm/highest_information_entropy.h"
 #include "../picking_algorithm/hybrid.h"
 #include "../picking_algorithm/most-frequent-in-column.h"
@@ -27,11 +28,11 @@ static void* create_solver_2(test_sess* session) {
 }
 
 static void* create_solver_3(test_sess* session) {
-	return solver_create(guess_by_information_entropy, 0);
+	return solver_create_w_alt_list(guess_by_information_entropy, 0, 2, 1, 1);
 }
 
 static void* create_solver_4(test_sess* session) {
-	return solver_create(guess_by_information_entropy, 1);
+	return solver_create_w_alt_list(guess_by_information_entropy, 1, 2, 1, 1);
 }
 
 static void* create_solver_5(test_sess* session) {
@@ -125,7 +126,8 @@ int test_algo_1_thread(wlist* word_list, const int algorithm, const char* starti
 		c_slvr_fx = create_solver_1;
 		break;
 	}
-	test_sess* session = test_sess_create(word_list, starting_word, c_slvr_fx, is_solver_1_open, solver_1_suggest, solver_1_receive_result, delete_solver_1);
+	const char* algo_name = algorithm_names[algorithm - 1];
+	test_sess* session = test_sess_create(word_list, algo_name, starting_word, c_slvr_fx, is_solver_1_open, solver_1_suggest, solver_1_receive_result, delete_solver_1);
 	if (session == NULL) {
 		print_error_ln("ERROR: No more memory space available.");
 		return 1;

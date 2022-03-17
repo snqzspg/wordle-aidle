@@ -56,4 +56,6 @@ extern algorithm* matt_dodge_hybrid_larger;
 extern algorithm* random_pick;
 extern algorithm* random_pick_larger;
 
+extern const char algorithm_names[12][67];
+
 #endif // ALGORITHMS_H_INCLUDED

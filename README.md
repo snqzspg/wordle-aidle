@@ -20,7 +20,7 @@ You can play the [Wordle game here](https://www.nytimes.com/games/wordle/index.h
 ## Application
 The solver application is named Wordle Aidle — inspired from Wordle, which was inspired creatively by the creator's name, Josh Wardle. It is a Command Line Interface (CLI) application that involves the Terminal. However, unlike many CLI applications, this application does not take in any arguments (not yet), but it prints out menus with several options for user to input, and navigetes to the feature the user has chosen.
 
-## New York Times crackdown on [Wordle Archive](https://metzger.media/games/wordle-archive/)
+## New York Times crackdown on [Wordle Archive](https://metzger.media/games/wordle-archive/) (Disclaimer)
 *[[Ars Technica Article](https://arstechnica.com/gaming/2022/03/new-york-times-takes-down-third-party-wordle-archive/)]*
 
 Recently, The New York Times (NYT) has requested to shut down Wordle Archive, because (as quoted by a New York Times representative):

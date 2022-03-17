@@ -25,15 +25,6 @@
 #include "wlist_interface.h"
 #include "homepage.h"
 
-static void lowercase_ascii(char* s) {
-	if (s == NULL) return;
-	for (; *s != '\0'; s++) {
-		if ('A' <= *s && *s <= 'Z') {
-			*s += 32;
-		}
-	}
-}
-
 /**
  * Return 1 if exit
  */
@@ -52,7 +43,7 @@ int select_word_bank(wlist* list) {
 		printf(" >> ");
 		free(input);
 		input = ask_user();
-		lowercase_ascii(input);
+		lowercase(input);
 		if (input == NULL) {
 			continue;
 		}
@@ -152,7 +143,7 @@ int select_starting_word(char* buffer) {
 		printf(" >> ");
 		free(input);
 		input = ask_user();
-		lowercase_ascii(input);
+		lowercase(input);
 		if (input == NULL) {
 			invalid_input = 1;
 			continue;
@@ -348,7 +339,7 @@ static int cpy_page_request(test_sess* session, const size_t total_pages, size_t
 	}
 	printf(" >> ");
 	char* input = ask_user();
-	lowercase_ascii(input);
+	lowercase(input);
 	if ((input == NULL || strcmp(input, ".") == 0 || strcmp(input, ">") == 0) && *current_page < total_pages - 1) {
 		(*current_page)++;
 		free(input);

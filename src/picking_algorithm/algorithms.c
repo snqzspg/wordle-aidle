@@ -6,6 +6,7 @@
 #include "../terminal_helper/cons_graphics.h"
 #include "../terminal_helper/helper_fxs.h"
 #include "../utilities/input-helper.h"
+#include "../utilities/str_util.h"
 
 #include "algorithms.h"
 #include "highest_information_entropy.h"
@@ -176,15 +177,6 @@ void alcats_clear() {
 	free(registered_algo_cats);
 }
 
-static void lowercase_ascii(char* s) {
-	if (s == NULL) return;
-	for (; *s != '\0'; s++) {
-		if ('A' <= *s && *s <= 'Z') {
-			*s += 32;
-		}
-	}
-}
-
 /**
  * Returns 1 if asked to cancel.
  * The selected algorithm will be copied into the dereferenced algo variable.
@@ -224,7 +216,7 @@ int select_algo_page(void (*print_title_stuff)(), int* algo, void (*print_algo_a
 		printf(" >> ");
 		free(input);
 		input = ask_user();
-		lowercase_ascii(input);
+		lowercase(input);
 		if (input == NULL) {
 			continue;
 		}

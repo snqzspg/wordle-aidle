@@ -153,6 +153,14 @@ void pgcg_set_distro_bar_colour() {
 	#endif // _WIN32
 }
 
+void pgcg_set_yellow_block_colour() {
+	#ifdef _WIN32
+	SetConsoleTextAttribute(console_handle, FOREGROUND_RED | FOREGROUND_GREEN);
+	#else
+	printf("\x1b[33m");
+	#endif // _WIN32
+}
+
 void pgcg_reset_colour() {
 	#ifdef _WIN32
 	SetConsoleTextAttribute(console_handle, saved_attributes);

@@ -315,6 +315,10 @@ void gbucket_writeres_all_file(gbucket* l, FILE* f, char dark_mode, char high_co
 		fwrite("\n", sizeof(char), 1, f);
 	}
 	fwrite("\n", sizeof(char), 1, f);
+	fwrite("NOTE: Only the scores from the official Wordle on The New York Times can be considered as legitimate. This score above does not count!\n", sizeof(char), 135, f);
+	fwrite("Site: https://www.nytimes.com/games/wordle/index.html (Surface)\n", sizeof(char), 64, f);
+	fwrite("Site: https://www.nytimesn7cgmftshazwhfgzm37qxb44r64ytbb2dj3x62d2lljsciiyd.onion/games/wordle/index.html (Onion)\n", sizeof(char), 113, f);
+	fwrite("\n", sizeof(char), 1, f);
 }
 
 gbucket* gbucket_create(size_t max_guess, const char* label) {

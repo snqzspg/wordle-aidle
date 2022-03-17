@@ -9,6 +9,11 @@ char wordle_in_dictionary(const char* wrd);
 size_t wordle_get_tday_num();
 
 /**
+ * Copies the corresponding word into wbuffer.
+ */
+void wordle_cpy_day_word(size_t number, char* __restrict__ wbuffer);
+
+/**
  * Copies today's word into wbuffer.
  * Returns the wordle number.
  */

@@ -7,6 +7,7 @@
 #include "../sorting/heap_sort.h"
 #include "../utilities/get_tz.h"
 #include "../utilities/obfuscator.h"
+#include "../utilities/str_util.h"
 #include "../wordle_stats.h"
 #include "../word_list/hardcoded_dictionary.h"
 #include "../word_list/wbitem.h"
@@ -82,14 +83,24 @@ size_t wordle_get_tday_num() {
 }
 
 /**
+ * Copies the corresponding word into wbuffer.
+ */
+void wordle_cpy_day_word(size_t number, char* __restrict__ wbuffer) {
+	number %= hcded_dict_len;
+	strcpy(wbuffer, hcded_dict_ordered[number]);
+	deobfs_str(wbuffer, number);
+}
+
+/**
  * Copies today's word into wbuffer.
  * Returns the wordle number.
  */
 size_t wordle_cpy_tday_word(char* __restrict__ wbuffer) {
 	size_t td = wordle_get_tday_num();
 	size_t td_cycle = td  % hcded_dict_len;
-	strcpy(wbuffer, hcded_dict_ordered[td_cycle]);
-	deobfs_str(wbuffer, td_cycle);
+	wordle_cpy_day_word(td_cycle, wbuffer);
+//	strcpy(wbuffer, hcded_dict_ordered[td_cycle]);
+//	deobfs_str(wbuffer, td_cycle);
 	return td;
 }
 
@@ -106,15 +117,6 @@ size_t wordle_cpy_rand_word(char* __restrict__ wbuffer) {
 
 static int cmpstr(const void *a, const void *b) {
 	return strcmp((*(char**) a), (*(char**) b));
-}
-
-static void lowercase_ascii(char* s) {
-	if (s == NULL) return;
-	for (; *s != '\0'; s++) {
-		if ('A' <= *s && *s <= 'Z') {
-			*s += 32;
-		}
-	}
 }
 
 static size_t max_w_length(wbank* l) {
@@ -135,7 +137,7 @@ void appnd_wordle_ans(wlist* list) {
 	char wrd[max_w_length(hcded_dict) + 1];
 	wbank_foreachitem(item, hcded_dict) {
 		strcpy(wrd, item -> value);
-		lowercase_ascii(wrd);
+		lowercase(wrd);
 		wlist_append(list, wrd);
 	}
 	strcpy(wrd, hcded_dict_ordered[0]);
@@ -159,12 +161,12 @@ void appnd_wordle_valids(wlist* list) {
 	char wrd[max_w_length(hcded_dict) + 1];
 	wbank_foreachitem(item, hcded_dict) {
 		strcpy(wrd, item -> value);
-		lowercase_ascii(wrd);
+		lowercase(wrd);
 		wlist_append(list, wrd);
 	}
 	wbank_foreachitem(item, valid_words) {
 		strcpy(wrd, item -> value);
-		lowercase_ascii(wrd);
+		lowercase(wrd);
 		wlist_append(list, wrd);
 	}
 	size_t warrlen = list -> length;

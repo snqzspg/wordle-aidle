@@ -1,8 +1,10 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "int_util.h"
+#include "str_util.h"
 
 #define bool char
 #define true 1
@@ -15,6 +17,12 @@ bool str_islen(const char *s, size_t len) {
 		}
 	}
 	return s[len] == '\0';
+}
+
+void lowercase(char* s) {
+	for (; *s != '\0'; s++) {
+		*s = (char) tolower(*s);
+	}
 }
 
 const char querty_key_seq[36] = "123weasdzxc456rtyfghvbn789uiojklm0p";

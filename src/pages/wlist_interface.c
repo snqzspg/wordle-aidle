@@ -217,15 +217,6 @@ static int parse_usr_command(wlist* list, char* command, size_t i_start_from, si
 	return 0;
 }
 
-static void lowercase_ascii(char* s) {
-	if (s == NULL) return;
-	for (; *s != '\0'; s++) {
-		if ('A' <= *s && *s <= 'Z') {
-			*s += 32;
-		}
-	}
-}
-
 static void display_err_msg(int err_type) {
 	pgcg_set_error_colour();
 	switch (err_type) {
@@ -287,7 +278,7 @@ int get_custom_wlist(wlist* list) {
 		printf(" >> ");
 		free(input);
 		input = ask_user();
-		lowercase_ascii(input);
+		lowercase(input);
 		if (input == NULL) {
 			break;
 		}

@@ -3,6 +3,8 @@
 
 size_t num_char_int(int n);
 size_t num_digit(size_t n);
+char is_pure_unsigned_number(const char* s);
+char is_pure_number(const char* s);
 size_t num_digit_unsigned_int(unsigned int n);
 void cpynumstr(char* buf, size_t n, size_t ndigits);
 void cpynumstr_usi(char* buf, unsigned int n, size_t ndigits);

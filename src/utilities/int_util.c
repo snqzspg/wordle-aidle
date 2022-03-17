@@ -23,6 +23,22 @@ size_t num_digit(size_t n) {
 	return d;
 }
 
+char is_pure_unsigned_number(const char* s) {
+	for (; *s != '\0'; s++) {
+		if (*s < '0' || *s > '9') {
+			return 0;
+		}
+	}
+	return 1;
+}
+
+char is_pure_number(const char* s) {
+	if (*s == '-') {
+		s++;
+	}
+	return is_pure_unsigned_number(s);
+}
+
 size_t num_digit_unsigned_int(unsigned int n) {
 	size_t d = 1;
 	while (n >= 10){

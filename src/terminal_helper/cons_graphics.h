@@ -13,6 +13,7 @@ void pgcg_set_warning_colour_stderr();
 void pgcg_set_error_colour_stderr();
 void pgcg_set_progress_bar_colour();
 void pgcg_set_distro_bar_colour();
+void pgcg_set_yellow_block_colour();
 void pgcg_reset_colour();
 void pgcg_reset_colour_stderr();
 

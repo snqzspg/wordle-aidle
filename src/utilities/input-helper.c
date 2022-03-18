@@ -34,6 +34,9 @@ char *ask_user() {
 	char* buf = NULL;
 	int count = 0;
 	char tmp[blockl + 2];
+	for (size_t i = 0; i < blockl + 2; i++) {
+		tmp[i] = '\0';
+	}
 	do {
 		if (fgets(tmp, blockl + 1, stdin) == NULL) {
 			free(buf);
@@ -41,13 +44,16 @@ char *ask_user() {
 		}
 		if (buf == NULL) {
 			buf = malloc(l * sizeof(char));
+			for (size_t i = 0; i < l; i++) {
+				buf[i] = '\0';
+			}
 			if (buf == NULL) {
 				print_error_ln("Error: Memory allocation failed (ask_user function).");
 				exit(1);
 			}
 			strcpy(buf, tmp);
 		} else {
-			l += 4;
+			l += blockl;
 			buf = realloc(buf, l * sizeof(char));
 			if (buf == NULL) {
 				print_error_ln("Error: Memory allocation failed (ask_user function).");

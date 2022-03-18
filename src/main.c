@@ -15,7 +15,7 @@ char colour_blind_mode = 1;
 
 const char* name = "Wordle Aidle";
 const char* innername = "waidle";
-const char* version = "0.3.2 Build 202203180142";
+const char* version = "0.3.2 Build 202203181324";
 
 int main(void) {
 	pgcg_init_console_graphics();

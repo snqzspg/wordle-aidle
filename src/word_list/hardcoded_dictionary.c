@@ -18900,4 +18900,9 @@ void cleanup_dict() {
 	}
 	wbank_delete(valid_words);
 	wbank_delete(extra_words);
+	wbank_delete(hcded_dict);
+	for (size_t i = 0; i < hcded_dict_len; i++) {
+		free(hcded_dict_ordered[i]);
+	}
+	free(hcded_dict_ordered);
 }

@@ -88,7 +88,7 @@ compilation terminated.
 ```
 mingw32-make: *** No targets specified and no makefile found.  Stop.
 ```
-To build, you will need to navigate to the root directory of the clone by typing `cd ` and dragging the folder into the prompt window. Then type make for_windows and it will automatically build the application. After it's done, the executable `waidle.exe` will be generated.
+To build, you will need to navigate to the root directory of the clone by typing `cd ` and dragging the folder into the prompt window. Then type `make for_windows` (or `mingw32-make for_windows` or `mingw64-make for_windows`) and it will automatically build the application. After it's done, the executable `waidle.exe` will be generated.
 ### macOS
 To install GCC and make for macOS you will need to install Xcode Command Line Tools. You can install it using the terminal command `xcode-select --install` and follow the prompt instructions. Alternatively you can also use homebrew to install Xcode Command Line Tools. You can also do [a quick google search](https://www.google.com/search?q=xcode+command+line+tools) on how to install.
 

@@ -4,7 +4,7 @@ v0.3.2
  - Further code restructuring works.
  - Added a disclaimer in the face of New York Times shutting down Wordle Archive.
  - Changed "Statistical" to "Information Theory".
- - Modified hard mode Information Theory Algorithm to make better guesses. The best performance achieved so far is 99.96% success (2308 or 2309 Wordle words passed), using the word "champ".
+ - Modified hard mode Information Theory Algorithm to make better guesses. The best performance achieved so far is 99.96% success (2308 of 2309 Wordle words passed), using the word "champ".
  - Fixed a memory leak.
 
 v0.3.1.1

@@ -115,44 +115,6 @@ solver* solver_create_w_alt_list(char* (*sugg_algo) (gbucket* guess_board, wlist
 		slvr -> list_configs[1].standard_filter = filter_alt_list;
 		slvr -> list_configs[1].list = alt_list_;
 	}
-
-	// Old list format
-//	slvr -> words_remaining = wlist_create();
-//	if (slvr -> guesses == NULL || slvr -> words_remaining == NULL) {
-//		print_error_ln("ERROR solver not created: No more memory space available.");
-//		return NULL;
-//	}
-//	wbitem* item;
-//	wbank_foreachitem(item, hcded_dict) {
-//		wlist_append(slvr -> words_remaining, item -> value);
-//	}
-//	if (include_all_valid_words) {
-//		wbank_foreachitem(item, valid_words) {
-//			wlist_append(slvr -> words_remaining, item -> value);
-//		}
-//	}
-//	slvr -> filter_main_list = filter_main_list;
-//	if (alt_list) {
-//		slvr -> words_remaining_2 = wlist_create();
-//		if (slvr -> words_remaining_2 == NULL) {
-//			print_error_ln("ERROR solver not created: No more memory space available.");
-//			free(slvr -> guesses);
-//			wlist_delete(slvr -> words_remaining);
-//			return NULL;
-//		}
-//		wbank_foreachitem(item, hcded_dict) {
-//			wlist_append(slvr -> words_remaining_2, item -> value);
-//		}
-//		if (alt_list == 2) {
-//			wbank_foreachitem(item, valid_words) {
-//				wlist_append(slvr -> words_remaining_2, item -> value);
-//			}
-//		}
-//		slvr -> filter_alt_list = filter_alt_list;
-//	} else {
-//		slvr -> words_remaining_2 = NULL;
-//		slvr -> filter_alt_list = 0;
-//	}
 	return slvr;
 }
 
@@ -164,11 +126,11 @@ char open_to_guess(solver* s) {
 	return s -> status == STATUS_IN_PROGRESS;
 }
 
-static void filter_lists(solver* s, list_lrpair* guess, cts_hmap* min_counts, cts_hmap* exact_counts) {
+static void filter_lists(solver* s, list_lrpair* guess, lcounter* min_letters, lcounter* exact_letters/*, cts_hmap* min_counts, cts_hmap* exact_counts*/) {
 	struct word_list_config* list_config = s -> list_configs;
 	for (size_t i = 0; i < s -> word_list_config_len; i++) {
 		if (list_config[i].standard_filter) {
-			filter_wlist_by_last_clue(list_config[i].list, gbucket_getlastguess(s -> guesses), s -> guesses -> min_letters, s -> guesses -> max_letters);
+			filter_wlist_by_last_clue(list_config[i].list, gbucket_getlastguess(s -> guesses), min_letters, exact_letters);
 		}
 	}
 }
@@ -181,20 +143,13 @@ void enter_guess_result(solver* s, char* word, char* result) {
 	gbucket_addguess(s -> guesses, word, result);
 
 	//New format
-	filter_lists(s, gbucket_getlastguess(s -> guesses), s -> guesses -> min_letters, s -> guesses -> max_letters);
+	filter_lists(s, gbucket_getlastguess(s -> guesses), s -> guesses -> min_letters, s -> guesses -> exact_letters);
 
-//	if (s -> filter_main_list) {
-//		filter_wlist_by_last_clue(s -> words_remaining, gbucket_getlastguess(s -> guesses), s -> guesses -> min_letters, s -> guesses -> max_letters);
-//	}
-//	if (s -> filter_alt_list && s -> words_remaining_2 != NULL) {
-//		filter_wlist_by_last_clue(s -> words_remaining_2, gbucket_getlastguess(s -> guesses), s -> guesses -> min_letters, s -> guesses -> max_letters);
-//	}
 	wlist* wordlists[(const size_t)(s -> word_list_config_len)];
 	for (size_t i = 0; i < s -> word_list_config_len; i++) {
 		wordlists[i] = s -> list_configs[i].list;
 	}
 	s -> suggested_word = s -> suggestion_algorithm(s -> guesses, wordlists, s -> word_list_config_len);
-//	s -> suggested_word = s -> suggestion_algorithm(s -> words_remaining, s -> guesses, s -> words_remaining_2);
 	if (s -> suggested_word == NULL) {
 		s -> status = STATUS_LOST;
 	}
@@ -220,7 +175,5 @@ static void solver_clear_lists(solver* s) {
 void solver_delete(solver* s) {
 	gbucket_delete(s -> guesses);
 	solver_clear_lists(s);
-//	wlist_delete(s -> words_remaining);
-//	wlist_delete(s -> words_remaining_2);
 	free(s);
 }

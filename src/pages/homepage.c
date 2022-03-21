@@ -7,7 +7,7 @@
 #include "../settings/colour_blind.h"
 #include "../terminal_helper/cons_graphics.h"
 #include "../terminal_helper/helper_fxs.h"
-#include "../utilities/hashmap.h"
+//#include "../utilities/hashmap.h"
 #include "../utilities/input-helper.h"
 #include "../utilities/str_util.h"
 #include "../wordle_simulator/simulate_game.h"

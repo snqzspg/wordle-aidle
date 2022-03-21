@@ -2,8 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../utilities/hashmap.h"
+//#include "../utilities/hashmap.h"
 #include "../wordle/guess_bucket.h"
+#include "../wordle/letter_counter.h"
 #include "../wordle/word_list.h"
 
 static size_t strcount(char* s, char c) {
@@ -31,7 +32,7 @@ struct gyletter_to_pos {
  * Because I've spent too much time on this, I shall not fix this as it is quite involved.
  * This may be pushed to a later time, probably where the hype of wordle dies down.
  */
-static char word_pass_green_letters(char* s, struct gyletter_to_pos* gyl_pos, size_t gyl_pos_len, cts_hmap* min_counts) {
+static char word_pass_green_letters(char* s, struct gyletter_to_pos* gyl_pos, size_t gyl_pos_len, lcounter* min_letters/*, cts_hmap* min_counts*/) {
 	size_t i;
 	for (i = 0; i < gyl_pos_len; i++) {
 		// letter is represented by (gyl_pos[i].letter)
@@ -41,15 +42,17 @@ static char word_pass_green_letters(char* s, struct gyletter_to_pos* gyl_pos, si
 			return 0;
 		}
 	}
-	cts_hmap_foreach(i, min_counts) {
-		if (strcount(s, min_counts -> items[i] -> key) < min_counts -> items[i] -> value) {
+	lcounter_foreach(i, min_letters) {
+//	cts_hmap_foreach(i, min_counts) {
+//		if (strcount(s, min_counts -> items[i] -> key) < min_counts -> items[i] -> value) {
+		if (strcount(s, min_letters -> data[min_letters -> logged_indices[i]].letter) < min_letters -> data[min_letters -> logged_indices[i]].count) {
 			return 0;
 		}
 	}
 	return 1;
 }
 
-static char word_pass_yellow_letters(char* s, struct gyletter_to_pos* gyl_pos, size_t gyl_pos_len, cts_hmap* min_counts) {
+static char word_pass_yellow_letters(char* s, struct gyletter_to_pos* gyl_pos, size_t gyl_pos_len, lcounter* min_letters/*, cts_hmap* min_counts*/) {
 	size_t i;
 	for (i = 0; i < gyl_pos_len; i++) {
 		// letter is represented by (gyl_pos[i].letter)
@@ -59,11 +62,12 @@ static char word_pass_yellow_letters(char* s, struct gyletter_to_pos* gyl_pos, s
 			return 0;
 		}
 	}
-	cts_hmap_foreach(i, min_counts) {
+	lcounter_foreach(i, min_letters) {
+//	cts_hmap_foreach(i, min_counts) {
 		// letter is represented by (gyl_pos[i].letter)
 		// <del>if string don't have letter -> fail yellow test</del>
 		// UPDATE: if letter count < min letter count in map -> fail yellow test.
-		if (strcount(s, min_counts -> items[i] -> key) < min_counts -> items[i] -> value) {
+		if (strcount(s, min_letters -> data[min_letters -> logged_indices[i]].letter) < min_letters -> data[min_letters -> logged_indices[i]].count) {
 			return 0;
 		}
 	}
@@ -83,7 +87,7 @@ static size_t max_w_length(wlist* l) {
 	return max;
 }
 
-static void filter_gy_letters(wlist* l, list_lrpair* guess, char result, cts_hmap* min_counts) {
+static void filter_gy_letters(wlist* l, list_lrpair* guess, char result, lcounter* min_letters/*, cts_hmap* min_counts*/) {
 	if (l -> length == 0) {
 		return;
 	}
@@ -105,7 +109,7 @@ static void filter_gy_letters(wlist* l, list_lrpair* guess, char result, cts_hma
 		j = l -> first_item;
 		while (j != NULL) {
 			tmp = j -> next;
-			if (!word_pass_green_letters(j -> word, gyl_to_pos, filled_len, min_counts)) {
+			if (!word_pass_green_letters(j -> word, gyl_to_pos, filled_len, min_letters)) {
 				wlist_removewl(l, j);
 			}
 			j = tmp;
@@ -115,7 +119,7 @@ static void filter_gy_letters(wlist* l, list_lrpair* guess, char result, cts_hma
 		j = l -> first_item;
 		while (j != NULL) {
 			tmp = j -> next;
-			if (!word_pass_yellow_letters(j -> word, gyl_to_pos, filled_len, min_counts)) {
+			if (!word_pass_yellow_letters(j -> word, gyl_to_pos, filled_len, min_letters)) {
 				wlist_removewl(l, j);
 			}
 			j = tmp;
@@ -123,25 +127,29 @@ static void filter_gy_letters(wlist* l, list_lrpair* guess, char result, cts_hma
 	}
 }
 
-static char word_pass_black_letters(char* s, cts_hmap* l_counts) {
+static char word_pass_black_letters(char* s, lcounter* exact_letters/*, cts_hmap* l_counts*/) {
 	size_t i;
-	cts_hmap_foreach(i, l_counts) {
-		// letter is represented by (l_counts -> items[i] -> key)
-		// max occurrence is represented by (l_counts -> items[i] -> value)
+	lcounter_foreach(i, exact_letters) {
+//		printf("DEBUG Letter %c\n", exact_letters -> data[exact_letters -> logged_indices[i]].letter);
+//		printf("DEBUG count %c\n", exact_letters -> data[exact_letters -> logged_indices[i]].count);
+//		system("pause");
+//	cts_hmap_foreach(i, exact_letters) {
+		// letter is represented by (exact_letters -> data[exact_letters -> logged_indices[i]] -> letter)
+		// max occurrence is represented by (exact_letters -> data[exact_letters -> logged_indices[i]] -> count)
 		// if occurrence != max occurrence -> fail black test
-		if (strcount(s, l_counts -> items[i] -> key) != l_counts -> items[i] -> value) {
+		if (strcount(s, exact_letters -> data[exact_letters -> logged_indices[i]].letter) != exact_letters -> data[exact_letters -> logged_indices[i]].count) {
 			return 0;
 		}
 	}
 	return 1;
 }
 
-static void filter_black_letters(wlist* l, cts_hmap* l_counts) {
+static void filter_black_letters(wlist* l, lcounter* exact_letters/*, cts_hmap* l_counts*/) {
 	wlword* j = l -> first_item;
 	wlword* tmp;
 	while (j != NULL) {
 		tmp = j -> next;
-		if (!word_pass_black_letters(j -> word, l_counts)) {
+		if (!word_pass_black_letters(j -> word, exact_letters)) {
 			wlist_removewl(l, j);
 		}
 		j = tmp;
@@ -151,10 +159,10 @@ static void filter_black_letters(wlist* l, cts_hmap* l_counts) {
 /**
  * Mutate the list by cumulatively filtering out the words from a pre-filted that does not match the patter given by wordle.
  */
-void filter_wlist_by_last_clue(wlist* l, list_lrpair* guess, cts_hmap* min_counts, cts_hmap* exact_counts) {
-	filter_gy_letters(l, guess, 'g', min_counts);
-	filter_black_letters(l, exact_counts);
-	filter_gy_letters(l, guess, 'y', min_counts);
+void filter_wlist_by_last_clue(wlist* l, list_lrpair* guess, lcounter* min_letters, lcounter* exact_letters/*, cts_hmap* min_counts, cts_hmap* exact_counts*/) {
+	filter_gy_letters(l, guess, 'g', min_letters);
+	filter_black_letters(l, exact_letters);
+	filter_gy_letters(l, guess, 'y', min_letters);
 }
 
 void print_possible_words(wlist* l, size_t cols, const char* prefix) {

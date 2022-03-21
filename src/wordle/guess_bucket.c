@@ -6,7 +6,8 @@
 #include "../error/print_error.h"
 #include "../settings/settings.h"
 #include "../terminal_helper/cons_graphics.h"
-#include "../utilities/hashmap.h"
+//#include "../utilities/hashmap.h"
+#include "letter_counter.h"
 
 const int max_allowed_guesses = 6;
 
@@ -125,7 +126,7 @@ list_lrpair* gen_res_pairs(char* word, char* results) {
 	return l;
 }
 
-static void gbucket_update_latestguess(list_lrpair* latest_guess, cts_hmap* map_min, cts_hmap* map_max) {
+static void gbucket_update_latestguess(list_lrpair* latest_guess, lcounter* min_letters, lcounter* exact_letters/*, cts_hmap* map_min, cts_hmap* map_max*/) {
 	if (latest_guess == NULL) {
 		print_error_ln("ERROR: gbucket_update_latestguess: latest_guess is null.");
 		return;
@@ -137,15 +138,23 @@ static void gbucket_update_latestguess(list_lrpair* latest_guess, cts_hmap* map_
 		if (res == 'b') {
 			size_t max_count = list_lrpair_count(latest_guess, let, 'y');
 			max_count += list_lrpair_count(latest_guess, let, 'g');
-			if (!cts_hmap_containskey(map_max, let) || cts_hmap_get(map_max, let) < max_count) {
-				cts_hmap_set(map_max, let, max_count);
+//			if (!cts_hmap_containskey(map_max, let) || cts_hmap_get(map_max, let) < max_count) {
+//				cts_hmap_set(map_max, let, max_count);
+//			}
+			size_t current_max_count;
+			if (!lcounter_cpy(exact_letters, &current_max_count, let) || current_max_count < max_count) {
+				lcounter_set(exact_letters, let, max_count);
 			}
 		} else {
 			size_t min_count = list_lrpair_count(latest_guess, let, 'y');
 			min_count += list_lrpair_count(latest_guess, let, 'g');
-			if (!cts_hmap_containskey(map_min, let) || cts_hmap_get(map_min, let) < min_count) {
-				cts_hmap_set(map_min, let, min_count);
+			size_t current_min_count;
+			if (!lcounter_cpy(min_letters, &current_min_count, let) || current_min_count < min_count) {
+				lcounter_set(min_letters, let, min_count);
 			}
+//			if (!cts_hmap_containskey(map_min, let) || cts_hmap_get(map_min, let) < min_count) {
+//				cts_hmap_set(map_min, let, min_count);
+//			}
 		}
 	}
 }
@@ -157,7 +166,7 @@ void gbucket_addguess(gbucket* l, char* word, char* results) {
 		return;
 	}
 	l -> guesses[gcount] = gen_res_pairs(word, results);
-	gbucket_update_latestguess(l -> guesses[gcount], l -> min_letters, l -> max_letters);
+	gbucket_update_latestguess(l -> guesses[gcount], l -> min_letters, l -> exact_letters);
 	l -> guess_count++;
 }
 
@@ -335,10 +344,12 @@ gbucket* gbucket_create(size_t max_guess, const char* label) {
 	}
 	g -> guess_count = 0;
 	g -> max_guesses = max_guess;
-	g -> min_letters = cts_hmap_createhashmap();
+//	g -> min_letters = cts_hmap_createhashmap();
 	// This records the maximum count of black letters that should be in the correct word.
 	// Most of the letters should be 0, but this is to combat duplicate letters.
-	g -> max_letters = cts_hmap_createhashmap();
+//	g -> max_letters = cts_hmap_createhashmap();
+	g -> min_letters = lcounter_create(NUM_LETTERS);
+	g -> exact_letters = lcounter_create(NUM_LETTERS);
 	if (label != NULL && strlen(label) > 0) {
 		g -> label = malloc(sizeof(char) * (strlen(label) + 1));
 		strcpy(g -> label, label);
@@ -354,8 +365,10 @@ void gbucket_delete(gbucket* b) {
 		list_lrpair_delete(b -> guesses[i]);
 	}
 	free(b -> guesses);
-	cts_hmap_deletehashmap(b -> min_letters);
-	cts_hmap_deletehashmap(b -> max_letters);
+//	cts_hmap_deletehashmap(b -> min_letters);
+//	cts_hmap_deletehashmap(b -> max_letters);
+	lcounter_delete(b -> exact_letters);
+	lcounter_delete(b -> min_letters);
 	free(b -> label);
 	free(b);
 }

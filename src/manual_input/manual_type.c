@@ -11,7 +11,7 @@
 #include "../picking_algorithm/random_pick.h"
 #include "../terminal_helper/cons_graphics.h"
 #include "../terminal_helper/helper_fxs.h"
-#include "../utilities/hashmap.h"
+//#include "../utilities/hashmap.h"
 #include "../utilities/input-helper.h"
 #include "../utilities/str_util.h"
 #include "../wordle/guess_bucket.h"
@@ -44,9 +44,7 @@ static char sorrymsg[sorrymsglen][49] = {
 void print_suggestion_page(solver* s) {
 	printf("The suggested word to try is:\n\n");
 	printf("    %s\n\n", current_suggested_word(s));
-//	if (s -> words_remaining -> length > 1) {
 	if (s -> list_configs[0].list -> length > 1) {
-//		printf("Type l to view all %lu possible answers.\n[Type l4 for 4 columns]\n", (long unsigned int) (s -> words_remaining -> length));
 		printf("Type l to view all %lu possible answers.\n[Type l4 for 4 columns]\n", (long unsigned int) (s -> list_configs[0].list -> length));
 	}
 }
@@ -180,14 +178,11 @@ void process_answer(solver* s, char* input) {
 
 void list_all_words(solver* s, size_t cols) {
 	clear_console();
-//	if (s -> words_remaining -> length > 1) {
 	if (s -> list_configs[0].list -> length > 1) {
-//		printf("\nListing %lu possible words\n\n", (long unsigned) s -> words_remaining -> length);
 		printf("\nListing %lu possible words\n\n", (long unsigned) s -> list_configs[0].list -> length);
 	} else {
 		printf("\nListing the word left\n\n");
 	}
-//	print_possible_words(s -> words_remaining, cols, "    ");
 	print_possible_words(s -> list_configs[0].list, cols, "    ");
 	printf("\n");
 	pause_console();

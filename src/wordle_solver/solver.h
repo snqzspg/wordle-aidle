@@ -20,8 +20,6 @@ typedef struct algo_registry algorithm;
 
 typedef struct wordle_game_solver {
 	gbucket* guesses;
-	wlist* words_remaining;
-	wlist* words_remaining_2;
 	char filter_main_list;
 	char filter_alt_list;
 	struct word_list_config* list_configs;

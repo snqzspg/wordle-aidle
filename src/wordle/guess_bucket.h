@@ -1,7 +1,9 @@
 #ifndef GUESS_BUCKET_H_INCLUDED
 #define GUESS_BUCKET_H_INCLUDED
 
-#include "../utilities/hashmap.h"
+//#include "../utilities/hashmap.h"
+
+#include "letter_counter.h"
 
 extern const int max_allowed_guesses;
 
@@ -63,8 +65,10 @@ typedef struct Guess_Bucket {
 	list_lrpair** guesses;
 	size_t guess_count;
 	size_t max_guesses;
-	cts_hmap* min_letters;
-	cts_hmap* max_letters;
+//	cts_hmap* min_letters;
+//	cts_hmap* max_letters;
+	lcounter* min_letters;
+	lcounter* exact_letters;
 	// A cts_hashmap to keep track of the highest black letter count in the correct word. Most should give 0.
 	char* label;
 } gbucket;

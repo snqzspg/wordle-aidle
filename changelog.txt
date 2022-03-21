@@ -1,10 +1,14 @@
+v0.4.0
+ - Used a new counter system.
+ - Removed silly Heap Sort implementation.
+
 v0.3.2
  - Added detection of console sizes (Works on UNIX and Windows)
  - Some indented texts now warp with indents - although they will not adjust while you resize.
  - Further code restructuring works.
  - Added a disclaimer in the face of New York Times shutting down Wordle Archive.
  - Changed "Statistical" to "Information Theory".
- - Modified hard mode Information Theory Algorithm to make better guesses. The best performance achieved so far is 99.96% success (2308 of 2309 Wordle words passed), using the word "champ".
+ - Modified hard mode Information Theory Algorithm to make better guesses. The best performance achieved so far is 99.96% success (2308 or 2309 Wordle words passed), using the word "champ".
  - Fixed a memory leak.
 
 v0.3.1.1

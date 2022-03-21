@@ -3,8 +3,9 @@
 #include <string.h>
 
 #include "../sorting/heap_sort.h"
-#include "../utilities/hashmap.h"
+//#include "../utilities/hashmap.h"
 #include "../wordle/guess_bucket.h"
+#include "../wordle/letter_counter.h"
 #include "../wordle/word_list.h"
 #include "../wordle_solver/solver.h"
 #include "../word_list/hardcoded_dictionary.h"
@@ -99,14 +100,19 @@ char* guess_by_freq_cols(gbucket* guess_board, wlist** word_lists, size_t nword_
 		return NULL;
 	}
 	size_t wlen = gbucket_getlastguess(guess_board) -> length;
-	cts_hmap* d[wlen];
+//	cts_hmap* d[wlen];
+	lcounter* score_counters[wlen];
 	for (size_t i = 0; i < wlen; i++) {
-		d[i] = cts_hmap_createhashmap();
+		score_counters[i] = lcounter_create(NUM_LETTERS);
+//		d[i] = cts_hmap_createhashmap();
 	}
 	wlword* j;
 	wlist_foreach(j, word_lists[0]) {
 		for (size_t i = 0; i < wlen; i++) {
-			cts_hmap_set(d[i], j -> word[i], cts_hmap_getwdefault(d[i], j -> word[i], 0) + 1);
+			size_t current_score = 0;
+			lcounter_cpy(score_counters[i], &current_score, j -> word[i]);
+			lcounter_set(score_counters[i], j -> word[i], current_score + 1);
+//			cts_hmap_set(d[i], j -> word[i], cts_hmap_getwdefault(d[i], j -> word[i], 0) + 1);
 		}
 	}
 	size_t count = 0;
@@ -115,7 +121,10 @@ char* guess_by_freq_cols(gbucket* guess_board, wlist** word_lists, size_t nword_
 	wlist_foreach(j, word_lists[0]) {
 		size_t score = 0;
 		for (size_t i = 0; i < wlen; i++) {
-			score += cts_hmap_getwdefault(d[i], j -> word[i], 0);
+//			score += cts_hmap_getwdefault(d[i], j -> word[i], 0);
+			size_t letter_count = 0;
+			lcounter_cpy(score_counters[i], &letter_count, j -> word[i]);
+			score += letter_count;
 		}
 		scores[count].word = j -> word;
 		scores[count].score = score;
@@ -138,7 +147,10 @@ char* guess_by_freq_cols(gbucket* guess_board, wlist** word_lists, size_t nword_
 		wlist_foreach(j, word_lists[1]) {
 			size_t score = 0;
 			for (size_t i = 0; i < wlen; i++) {
-				score += cts_hmap_getwdefault(d[i], j -> word[i], 0);
+//				score += cts_hmap_getwdefault(d[i], j -> word[i], 0);
+				size_t letter_count = 0;
+				lcounter_cpy(score_counters[i], &letter_count, j -> word[i]);
+				score += letter_count;
 			}
 			if (score > max_score) {
 				best_pick = j -> word;
@@ -148,7 +160,8 @@ char* guess_by_freq_cols(gbucket* guess_board, wlist** word_lists, size_t nword_
 	}
 
 	for (size_t i = 0; i < wlen; i++) {
-		cts_hmap_deletehashmap(d[i]);
+//		cts_hmap_deletehashmap(d[i]);
+		lcounter_delete(score_counters[i]);
 	}
 	return best_pick;
 	//return wlist_get(word_lists[0], tallyindex(score_tally, word_lists[0] -> length, getmax(score_tally, word_lists[0] -> length)));

@@ -57,6 +57,79 @@ void heap_idx_shrinkby(heap_idx* h, const size_t x) {
 	}
 }
 
+/**
+ * Returns expanded size.
+ */
+long int heap_idx_expandby(heap_idx* h, const size_t x) {
+	size_t newlen = h -> length + x;
+	size_t alloc_ed = h -> initial_len;
+	if (newlen > h -> initial_len) {
+		h -> initial_len *= 2;
+		h -> idx_to_col = realloc(h -> idx_to_col, sizeof(size_t) * (h -> initial_len));
+		h -> idx_to_row = realloc(h -> idx_to_row, sizeof(size_t) * (h -> initial_len));
+		if (h -> idx_to_col == NULL || h -> idx_to_row == NULL) {
+			h -> initial_len = 0;
+			return (long int) alloc_ed * -1;
+		}
+	}
+	heap_idx_fill_rowcols(h);
+	return x;
+}
+
+void heap_idx_set_len_to(heap_idx* h, const size_t x) {
+	if (x == h -> length) {
+		return;
+	}
+	if (x > h -> length) {
+		heap_idx_expandby(h, x - h -> length);
+		return;
+	}
+	heap_idx_shrinkby(h, h -> length - x);
+}
+
+void heap_idx_fill_rowcols(heap_idx* h) {
+	size_t row = 0;
+	size_t columns = 1;
+	size_t a = 0;
+	size_t i;
+	while (a < h -> initial_len) {
+		for (i = 0; i < columns; i++) {
+			if (a >= h -> initial_len) {
+				break;
+			}
+			h -> idx_to_row[a] = row;
+			h -> idx_to_col[a] = i;
+			a++;
+		}
+		columns *= 2;
+		row++;
+	}
+}
+
+void heap_idx_set_default(heap_idx* h, const size_t len) {
+	if (h == NULL || h -> idx_to_col == NULL || h -> idx_to_row == NULL) {
+		return;
+	}
+	h -> initial_len = len;
+	h -> length = len;
+	size_t row = 0;
+	size_t columns = 1;
+	size_t a = 0;
+	size_t i;
+	while (a < len) {
+		for (i = 0; i < columns; i++) {
+			if (a >= len) {
+				break;
+			}
+			h -> idx_to_row[a] = row;
+			h -> idx_to_col[a] = i;
+			a++;
+		}
+		columns *= 2;
+		row++;
+	}
+}
+
 heap_idx* heap_idx_create(const size_t len) {
 	heap_idx* nh = malloc(sizeof(heap_idx));
 	if (nh == NULL) {
@@ -70,24 +143,25 @@ heap_idx* heap_idx_create(const size_t len) {
 		free(nh);
 		return NULL;
 	}
-	nh -> initial_len = len;
-	nh -> length = len;
-	size_t row = 0;
-	size_t columns = 1;
-	size_t a = 0;
-	size_t i;
-	while (a < len) {
-		for (i = 0; i < columns; i++) {
-			if (a >= len) {
-				break;
-			}
-			nh -> idx_to_row[a] = row;
-			nh -> idx_to_col[a] = i;
-			a++;
-		}
-		columns *= 2;
-		row++;
-	}
+	heap_idx_set_default(nh, len);
+//	nh -> initial_len = len;
+//	nh -> length = len;
+//	size_t row = 0;
+//	size_t columns = 1;
+//	size_t a = 0;
+//	size_t i;
+//	while (a < len) {
+//		for (i = 0; i < columns; i++) {
+//			if (a >= len) {
+//				break;
+//			}
+//			nh -> idx_to_row[a] = row;
+//			nh -> idx_to_col[a] = i;
+//			a++;
+//		}
+//		columns *= 2;
+//		row++;
+//	}
 	return nh;
 }
 

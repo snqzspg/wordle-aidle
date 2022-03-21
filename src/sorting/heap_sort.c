@@ -2,44 +2,66 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "heap_idx.h"
+#include "heap_sort.h"
 
 /*
  * Thanks! https://stackoverflow.com/questions/2232706/swapping-objects-using-pointers
  */
-void hsort_swap(void* a, void* b, size_t size) {
+static void swap(void* a, void* b, size_t size) {
 	char tmp[size];
 	memcpy(tmp, b, size);
 	memcpy(b, a, size);
 	memcpy(a, tmp, size);
 }
 
-void* hsort_access_idx_ptr(void* list, size_t itemsize, size_t i) {
+/**
+ * Returns count of children, could be 2, 1 or 0.
+ */
+static size_t cpy_children_idx(size_t* __restrict__ children, const size_t i, const size_t heaplen) {
+	size_t c1 = 2 * i + 1;
+	size_t c2 = 2 * (i + 1);
+	if (children != NULL) {
+		children[0] = c1;
+		children[1] = c2;
+	}
+	if (c1 >= heaplen) {
+		return 0;
+	}
+	if (c2 >= heaplen) {
+		return 1;
+	}
+	return 2;
+}
+
+static size_t parent_idx(const size_t i) {
+	return (i - 1) / 2;
+}
+
+static void* get_ptr_by_i(void* list, size_t itemsize, size_t i) {
 	return list + i * itemsize;
 }
 
-char hsort_partial_sift_down(void* list, heap_idx* heapmap, size_t itemsize, int (*compr)(const void*, const void*), size_t idx, size_t* swpchildidx) {
-	size_t ccount = heap_idx_childrencount(heapmap, idx);
+char hsort_partial_sift_down(void* list, size_t heaplen, size_t itemsize, int (*compr)(const void*, const void*), size_t idx, size_t* swpchildidx) {
+	size_t children[2];
+	size_t ccount = cpy_children_idx(children, idx, heaplen);
 	if (ccount == 0) {
 		return 0;
 	}
-	size_t children[2];
-	heap_idx_cpychildrenof_idx(heapmap, children, idx);
 	*swpchildidx = children[0];
-	if (ccount == 2 && compr(hsort_access_idx_ptr(list, itemsize, *swpchildidx), hsort_access_idx_ptr(list, itemsize, children[1])) < 0) {
+	if (ccount == 2 && compr(get_ptr_by_i(list, itemsize, *swpchildidx), get_ptr_by_i(list, itemsize, children[1])) < 0) {
 		*swpchildidx = children[1];
 	}
-	if (compr(hsort_access_idx_ptr(list, itemsize, idx), hsort_access_idx_ptr(list, itemsize, *swpchildidx)) < 0) {
-		hsort_swap(hsort_access_idx_ptr(list, itemsize, idx), hsort_access_idx_ptr(list, itemsize, *swpchildidx), itemsize);
+	if (compr(get_ptr_by_i(list, itemsize, idx), get_ptr_by_i(list, itemsize, *swpchildidx)) < 0) {
+		swap(get_ptr_by_i(list, itemsize, idx), get_ptr_by_i(list, itemsize, *swpchildidx), itemsize);
 		return 1;
 	}
 	return 0;
 }
 
-void hsort_sift_down(void* list, heap_idx* heapmap, size_t itemsize, int (*compr)(const void*, const void*), size_t idx) {
+void hsort_sift_down(void* list, size_t heaplen, size_t itemsize, int (*compr)(const void*, const void*), size_t idx) {
 	size_t i = idx;
-	while (idx < heapmap -> length) {
-		if (hsort_partial_sift_down(list, heapmap, itemsize, compr, idx, &i)) {
+	while (idx < heaplen) {
+		if (hsort_partial_sift_down(list, heaplen, itemsize, compr, idx, &i)) {
 			idx = i;
 		} else {
 			break;
@@ -47,10 +69,10 @@ void hsort_sift_down(void* list, heap_idx* heapmap, size_t itemsize, int (*compr
 	}
 }
 
-void hsort_heapify(void* list, heap_idx* heapmap, size_t itemsize, int (*compr)(const void*, const void*)) {
-	size_t parent = heap_idx_parentof_idx(heapmap, heapmap -> length - 1);
+void hsort_heapify(void* list, size_t heaplen, size_t itemsize, int (*compr)(const void*, const void*)) {
+	size_t parent = parent_idx(heaplen - 1);
 	while (1) {
-		hsort_sift_down(list, heapmap, itemsize, compr, parent);
+		hsort_sift_down(list, heaplen, itemsize, compr, parent);
 		if (parent == 0) {
 			break;
 		}
@@ -58,16 +80,18 @@ void hsort_heapify(void* list, heap_idx* heapmap, size_t itemsize, int (*compr)(
 	}
 }
 
+/**
+ * Unstable sorting algorithm.
+ */
 void hsort(void* list, size_t nitems, size_t size, int (*compr)(const void*, const void*)) {
 	if (nitems <= 1) {
 		return;
 	}
-	heap_idx* heapmap = heap_idx_create(nitems);
-	hsort_heapify(list, heapmap, size, compr);
-	while (heapmap -> length > 1) {
-		hsort_swap(list, hsort_access_idx_ptr(list, size, heapmap -> length - 1), size);
-		heap_idx_shrinkby(heapmap, 1);
-		hsort_sift_down(list, heapmap, size, compr, 0);
+	size_t heaplen = nitems;
+	hsort_heapify(list, heaplen, size, compr);
+	while (heaplen > 1) {
+		swap(list, get_ptr_by_i(list, size, heaplen - 1), size);
+		heaplen--;
+		hsort_sift_down(list, heaplen, size, compr, 0);
 	}
-	heap_idx_delete(heapmap);
 }

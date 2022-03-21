@@ -13,7 +13,11 @@ size_t heap_idx_parentof_idx(heap_idx* h, const size_t i);
 size_t heap_idx_childrencount(heap_idx* h, const size_t i);
 void heap_idx_cpychildrenof_idx(heap_idx* h, size_t* buf, const size_t i);
 void heap_idx_shrinkby(heap_idx* h, const size_t x);
+long int heap_idx_expandby(heap_idx* h, const size_t x);
+void heap_idx_set_len_to(heap_idx* h, const size_t x);
+void heap_idx_fill_rowcols(heap_idx* h);
 
+void heap_idx_set_default(heap_idx* h, const size_t len);
 heap_idx* heap_idx_create(const size_t len);
 void heap_idx_delete(heap_idx* h);
 

@@ -3,7 +3,6 @@
 #include <string.h>
 
 #include "../sorting/heap_sort.h"
-#include "../utilities/hashmap.h"
 #include "../wordle/guess_bucket.h"
 #include "../wordle/word_list.h"
 #include "../wordle_solver/solver.h"

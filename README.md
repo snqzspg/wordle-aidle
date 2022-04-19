@@ -1,4 +1,6 @@
 # Wordle Aidle
+![banner-2](https://user-images.githubusercontent.com/43104884/159053098-59be5c23-2d30-4891-9d81-23e39f93c058.png)
+
 Wordle has been the hype of the internet for January and February 2022, and I have jumped into the bandwagon of playing the game. However, sometimes guessing a word each day may take too much time (apparently 5 minutes each day is a lot for a game.. 😐) and I would like to have something that automatically helps me solve today's Wordle, so that I won't lose my streak.
 
 Therefore like a lot of programmers who jumped into the bandwagon, I've made a tool to solve Wordle, hopefully better than I can 😅.

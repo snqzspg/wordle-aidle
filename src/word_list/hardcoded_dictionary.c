@@ -33,7 +33,11 @@ char** hcded_dict_ordered;
 wbank* hcded_dict;
 
 /**
- * Last updated 20220315
+ * Last updated 20220420
+ * Added two words as valid guesses: koran and quran
+ */
+/**
+ * Update 20220315
  * From previous update on 20220212
  * 25 words has been deleted from the Wordle word list by The New York Times as they are considered 'obscure', 'insensitive' or 'offensive'.
  * Now they are added back as valid guesses. They are not Wordle answers.
@@ -4931,6 +4935,7 @@ void init_dict() {
 	wbank_add(valid_words, "kopje");
 	wbank_add(valid_words, "koppa");
 	wbank_add(valid_words, "korai");
+	wbank_add(valid_words, "koran");
 	wbank_add(valid_words, "koras");
 	wbank_add(valid_words, "korat");
 	wbank_add(valid_words, "kores");
@@ -7364,6 +7369,7 @@ void init_dict() {
 	wbank_add(valid_words, "quoll");
 	wbank_add(valid_words, "quonk");
 	wbank_add(valid_words, "quops");
+	wbank_add(valid_words, "quran");
 	wbank_add(valid_words, "qursh");
 	wbank_add(valid_words, "quyte");
 	wbank_add(valid_words, "rabat");
@@ -17459,7 +17465,6 @@ void init_dict() {
 	wbank_add(extra_words, "solfa");
 	wbank_add(extra_words, "saify");
 	wbank_add(extra_words, "lesgh");
-	wbank_add(extra_words, "koran");
 	wbank_add(extra_words, "duole");
 	wbank_add(extra_words, "archt");
 	wbank_add(extra_words, "arnee");

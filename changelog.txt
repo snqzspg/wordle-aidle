@@ -1,3 +1,7 @@
+v0.3.3
+ - Selemat Hari Raya Aidilfitri (Eid al-Fitr) for Muslim friends.
+ - Added two words into valid guesses word list: 'koran' and 'quran'
+
 v0.3.2
  - Added detection of console sizes (Works on UNIX and Windows)
  - Some indented texts now warp with indents - although they will not adjust while you resize.

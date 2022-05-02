@@ -54,7 +54,7 @@ wbank* hcded_dict;
  *  whore
  */
 wbank* valid_words;
-const size_t valid_words_count = 10663;
+const size_t valid_words_count = 10665;
 
 /**
  * Other five-letter words that are not considered valid words in Wordle.
@@ -65,7 +65,7 @@ const size_t valid_words_count = 10663;
  *         https://github.com/dwyl/english-words
  */
 wbank* extra_words;
-const size_t extra_words_count = 5812;
+const size_t extra_words_count = 5811;
 
 const size_t win_loss_words_len = 6;
 char* win_loss_words[6];

@@ -6,7 +6,23 @@
 #include "hardcoded_dictionary.h"
 
 /**
- * Last updated 20220315
+ * Last updated 20220511
+ * The following Wordle answers were changed:
+ *  Wordle #324 - Changed from fetus to shine
+ *    fetus is now Wordle #2303
+ *    shine was Wordle #2248
+ *  Wordle #325 - Changed from butch to gecko
+ *    butch is now Wordle #2304
+ *    gecko was Wordle #2249
+ * The following words have their order switched.
+ *  flack - Previously Wordle #383, now Wordle #2306
+ *  stalk - Previously Wordle #387, now Wordle #2305
+ *  augur - Previously Wordle #395, now Wordle #2308
+ *  widow - Previously Wordle #436, now Wordle #2307
+ * All other words initially after the words above will have their days shifted earlier.
+ */
+/**
+ * Update 20220315
  * The order of 16 answers have their days shifted to the back.
  * The following words have their orders switched.
  *  harry - Previously Wordle #285, now Wordle #2298

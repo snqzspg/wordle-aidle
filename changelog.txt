@@ -2,6 +2,14 @@ v0.4.0
  - Used a new counter system.
  - Removed silly Heap Sort implementation.
 
+v0.3.4
+ - Updated the word list in this app as Wordle had its word list changed.
+ - This is to avoid a word being seen as a commentary of the current debate of abortion rights.
+
+v0.3.3
+ - Selemat Hari Raya Aidilfitri (Eid al-Fitr) for Muslim friends.
+ - Added two words into valid guesses word list: 'koran' and 'quran'
+
 v0.3.2
  - Added detection of console sizes (Works on UNIX and Windows)
  - Some indented texts now warp with indents - although they will not adjust while you resize.

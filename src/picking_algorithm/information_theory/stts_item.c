@@ -58,8 +58,10 @@ stts_item* stts_item_clone(stts_item* w) {
 	nw -> hash = w -> hash;
 	nw -> prev = NULL;
 	nw -> next = NULL;
-	w -> mapprev = NULL;
-	w -> mapnext = NULL;
+//	w -> mapprev = NULL;
+//	w -> mapnext = NULL;
+	nw -> mapprev = NULL;
+	nw -> mapnext = NULL;
 	return nw;
 }
 

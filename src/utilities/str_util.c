@@ -37,30 +37,30 @@ void uppercase(char* s) {
 	}
 }
 
-const char querty_key_seq[36] = "123weasdzxc456rtyfghvbn789uiojklm0p";
-
-/**
- * Note that first option starts from 0
- */
-size_t get_option_key_len(size_t i) {
-	return i / 35;
-}
-
-
-/**
- * Note that first option starts from 0
- * Copies the corresponding option key of i into opt
- */
-void cpy_option_key(size_t i, char* optbuf) {
-	while (i >= 35) {
-		*optbuf = querty_key_seq[i % 35];
-		optbuf++;
-		i /= 35;
-	}
-	*optbuf = querty_key_seq[i % 35];
-	optbuf++;
-	*optbuf = '\0';
-}
+//const char querty_key_seq[36] = "123weasdzxc456rtyfghvbn789uiojklm0p";
+//
+///**
+// * Note that first option starts from 0
+// * Returns the length of the corresponding option key string of i
+// */
+//size_t get_option_key_len(size_t i) {
+//	return i / 35 + 1;
+//}
+//
+///**
+// * Note that first option starts from 0
+// * Copies the corresponding option key of i into opt
+// */
+//void cpy_option_key(size_t i, char* optbuf) {
+//	while (i >= 35) {
+//		*optbuf = querty_key_seq[i % 35];
+//		optbuf++;
+//		i /= 35;
+//	}
+//	*optbuf = querty_key_seq[i % 35];
+//	optbuf++;
+//	*optbuf = '\0';
+//}
 
 void insert_int_bef_ext(char* fname, const int n, const size_t buflen) {
 	const size_t nlen = num_char_int(n);

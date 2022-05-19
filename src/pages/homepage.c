@@ -7,7 +7,7 @@
 #include "../settings/colour_blind.h"
 #include "../terminal_helper/cons_graphics.h"
 #include "../terminal_helper/helper_fxs.h"
-//#include "../utilities/hashmap.h"
+//#include "../utilities/cts_hashmap.h"
 #include "../utilities/input-helper.h"
 #include "../utilities/str_util.h"
 #include "../wordle_simulator/simulate_game.h"
@@ -26,11 +26,6 @@ void print_title_banner() {
 	int cols = pgcg_get_console_cols() - 1;
 	printf("%.*s\n%.*s\n%.*s\n%.*s\n", cols, banner_lines[0], cols, banner_lines[1], cols, banner_lines[2], cols, banner_lines[3]);
 	printf("%s\n", banner_lines[4]);
-//	printf(" _  _   __  ____  ____  __    ____     __   __  ____  __    ____ \n");
-//	printf("/ )( \\ /  \\(  _ \\(    \\(  )  (  __)   / _\\ (  )(    \\(  )  (  __)\n");
-//	printf("\\ /\\ /(  O ))   / ) D (/ (_/\\ ) _)   /    \\ )(  ) D (/ (_/\\ ) _) \n");
-//	printf("(_/\\_) \\__/(__\\_)(____/\\____/(____)  \\_/\\_/(__)(____/\\____/(____)\n");
-//	printf("(ASCII Art: Wordle Aidle)\n");
 }
 
 /**

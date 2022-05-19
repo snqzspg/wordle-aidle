@@ -1,7 +1,6 @@
 #ifndef LIST_WORDS_BY_CLUE_H_INCLUDED
 #define LIST_WORDS_BY_CLUE_H_INCLUDED
 
-//#include "../utilities/hashmap.h"
 #include "../wordle/guess_bucket.h"
 #include "../wordle/letter_counter.h"
 #include "../wordle/word_list.h"

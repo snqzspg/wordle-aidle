@@ -6,6 +6,7 @@
 #include "../terminal_helper/cons_graphics.h"
 #include "../terminal_helper/helper_fxs.h"
 #include "../utilities/input-helper.h"
+#include "../utilities/option_keys.h"
 #include "../utilities/str_util.h"
 
 #include "algorithms.h"
@@ -175,6 +176,65 @@ void alcats_clear() {
 		}
 	}
 	free(registered_algo_cats);
+}
+
+/**
+ * Returns 1 if asked to cancel.
+ * The selected algorithm will be copied into the dereferenced algo variable.
+ */
+int new_select_algo_page(void (*print_title_stuff)(), int* algo, void (*print_algo_add_info)(int algo)) {
+    return 0;
+}
+
+static const size_t get_cat_name_len(const void* bytes, const size_t catsize) {
+	return strlen((*((alcat*)bytes)).name);
+}
+
+static void cpy_cat_name(const void* bytes, const size_t catsize, char* buffer) {
+	strcpy(buffer, (*((alcat*)bytes)).name);
+}
+
+/**
+ * Returns 1 if asked to cancel.
+ * The selected category will be copied into the dereferenced selected_cat variable.
+ */
+int select_cat_page(void (*print_title_stuff)(), char* cat_select_prefix, alcat* selected_cat) {
+	char* input = NULL;
+	while (1) {
+		clear_console();
+		if (print_title_stuff != NULL) print_title_stuff();
+		printf("\n");
+		print_wraped_linef("%s", 0, PGINDENT, cat_select_prefix);
+		for (size_t i = 0; i < registered_algos_len; i++) {
+			size_t optlen = get_option_key_len(i);
+			char optkey[optlen + 1];
+			cpy_option_key(i, optkey);
+			print_wraped_linef("%s - %s", 1, PGINDENT, optkey, registered_algo_cats[i].name);
+		}
+		print_options_list(registered_algo_cats, registered_algos_len, sizeof(alcat), 1, get_cat_name_len, cpy_cat_name);
+		// TODO: make universal hashmap that takes in void pointers for both keys and values, as well as the respective typesizes.
+		//       or string to void ptrs hashmap instead.
+		print_wraped_linef("q - Exit\n", 1, PGINDENT);
+		printf(" >> ");
+		free(input);
+		input = ask_user();
+		lowercase(input);
+		if (input == NULL) {
+			continue;
+		}
+		if (strcmp(input, "q") == 0) {
+			free(input);
+			return 1;
+		}
+		size_t algo_idx = get_idx_from_option_key(input);
+		if (algo_idx < registered_algos_len) {
+			*selected_cat = registered_algo_cats[algo_idx];
+			free(input);
+			return 0;
+		}
+    }
+
+	return 0;
 }
 
 /**

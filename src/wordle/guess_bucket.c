@@ -6,7 +6,7 @@
 #include "../error/print_error.h"
 #include "../settings/settings.h"
 #include "../terminal_helper/cons_graphics.h"
-//#include "../utilities/hashmap.h"
+//#include "../utilities/cts_hashmap.h"
 #include "letter_counter.h"
 
 const int max_allowed_guesses = 6;

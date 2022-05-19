@@ -1,7 +1,7 @@
 #ifndef GUESS_BUCKET_H_INCLUDED
 #define GUESS_BUCKET_H_INCLUDED
 
-//#include "../utilities/hashmap.h"
+//#include "../utilities/cts_hashmap.h"
 
 #include "letter_counter.h"
 

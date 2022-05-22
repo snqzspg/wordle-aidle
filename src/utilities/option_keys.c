@@ -62,8 +62,8 @@ void print_options_list(const void* list, const size_t nitems, const size_t size
 		const size_t optlen = get_option_key_len(i);
 		char optkey[optlen + 1];
 		cpy_option_key(i, optkey);
-		char name_buffer[get_name_len(list + nitems * size, size) + 1];
-		cpy_name(list + nitems * size, size, name_buffer);
+		char name_buffer[get_name_len(list + i * size, size) + 1];
+		cpy_name(list + i * size, size, name_buffer);
 		print_wraped_linef("%s - %s", indent, PGINDENT, optkey, name_buffer);
 	}
 }

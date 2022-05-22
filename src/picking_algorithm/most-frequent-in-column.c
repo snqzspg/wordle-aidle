@@ -9,6 +9,7 @@
 #include "../wordle/word_list.h"
 #include "../wordle_solver/solver.h"
 #include "../word_list/hardcoded_dictionary.h"
+#include "../word_list/word_bank.h"
 
 #include "algorithms.h"
 #include "most-frequent-in-column.h"

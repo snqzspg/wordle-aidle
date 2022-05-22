@@ -10,13 +10,13 @@
 #include "utilities/option_keys.h"
 #include "word_list/hardcoded_dictionary.h"
 
-//#include "picking_algorithm/algorithms.h"
+#include "picking_algorithm/algorithms.h"
 
 char colour_blind_mode = 1;
 
 const char* name = "Wordle Aidle";
 const char* innername = "waidle";
-const char* version = "snapshot-202205161726";
+const char* version = "snapshot-202205230146";
 
 int main(void) {
 	pgcg_init_console_graphics();
@@ -28,9 +28,9 @@ int main(void) {
 	if (option_keys_init()) {
 		return 1;
 	}
-//	register_algorithms();
+	register_algorithms();
 	homepage_thread();
-//	alcats_clear();
+	alcats_clear();
 	option_keys_cleanup();
 	cleanup_dict();
 	return 0;

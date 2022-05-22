@@ -23,8 +23,33 @@ void solver_request_additional_wlist(solver* slvr) {
 	slvr -> word_list_config_len++;
 }
 
-solver* solver_create(char* (*sugg_algo) (gbucket* guess_board, wlist** word_lists, size_t nword_lists), char include_all_valid_words) {
-	return solver_create_w_alt_list(sugg_algo, include_all_valid_words, 0, 1, 0);
+//solver* solver_create(char* (*sugg_algo) (gbucket* guess_board, wlist** word_lists, size_t nword_lists), char include_all_valid_words) {
+//	return solver_create_w_alt_list(sugg_algo, include_all_valid_words, 0, 1, 0);
+//}
+
+solver* solver_create(algorithm* sugg_algorithm) {
+	solver* slvr = malloc(sizeof(solver));
+	slvr -> guesses = gbucket_create(wordle_max_guesses, NULL);
+	slvr -> status = STATUS_IN_PROGRESS;
+	slvr -> suggest_algo = sugg_algorithm;
+	slvr -> suggested_word = NULL;
+
+	size_t min_word_lists = sugg_algorithm -> min_word_lists;
+	slvr -> word_list_config_len = min_word_lists;
+	slvr -> list_configs = malloc(sizeof(struct word_list_config) * min_word_lists);
+	if (slvr -> list_configs == NULL) {
+		gbucket_delete(slvr -> guesses);
+		free(slvr);
+		return NULL;
+	}
+
+	for (size_t i = 0; i < min_word_lists; i++) {
+		slvr -> list_configs[i].standard_filter = 0;
+		slvr -> list_configs[i].list = wlist_create();
+	}
+
+	sugg_algorithm -> init(slvr, sugg_algorithm);
+	return slvr;
 }
 
 /**
@@ -145,11 +170,16 @@ void enter_guess_result(solver* s, char* word, char* result) {
 	//New format
 	filter_lists(s, gbucket_getlastguess(s -> guesses), s -> guesses -> min_letters, s -> guesses -> exact_letters);
 
+	// Tentative
+	if (s -> suggest_algo -> guess_made != NULL) {
+		s -> suggest_algo -> guess_made(s, s -> suggest_algo);
+	}
+
 	wlist* wordlists[(const size_t)(s -> word_list_config_len)];
 	for (size_t i = 0; i < s -> word_list_config_len; i++) {
 		wordlists[i] = s -> list_configs[i].list;
 	}
-	s -> suggested_word = s -> suggestion_algorithm(s -> guesses, wordlists, s -> word_list_config_len);
+	s -> suggested_word = s -> suggest_algo -> suggest_word(s -> guesses, wordlists, s -> word_list_config_len);
 	if (s -> suggested_word == NULL) {
 		s -> status = STATUS_LOST;
 	}
@@ -174,6 +204,9 @@ static void solver_clear_lists(solver* s) {
 
 void solver_delete(solver* s) {
 	gbucket_delete(s -> guesses);
+	if (s -> suggest_algo -> cleanup) {
+		s -> suggest_algo -> cleanup(s, s -> suggest_algo);
+	}
 	solver_clear_lists(s);
 	free(s);
 }

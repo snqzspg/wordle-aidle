@@ -48,20 +48,36 @@ static size_t cpy_to_next_eof(char* dest, const char* line, int limit) {
 //}
 
 /**
+ * The following macro is not necessary for GCC, but it is a solution for MSVC compilers.
+ * https://stackoverflow.com/questions/558223/va-copy-porting-to-visual-c
+ */
+#ifndef va_copy
+#define va_copy(d, s) ((d) = (s))
+#endif // va_copy
+
+/**
  * Delete using free()
  */
 static char* create_fmttd_line(const char* fmt, va_list args) {
 	size_t buffer = strlen(fmt) + 1;
 	size_t len = 0;
+	va_list stash;
+	va_copy(stash, args);
 	char* ret = NULL;
 	do {
 		buffer *= 2;
 		ret = realloc(ret, sizeof(char) * buffer);
+//		printf("DEBUG %lu\n", (long unsigned) buffer);
 		vsnprintf(ret, buffer, fmt, args);
+//		printf("DEBUG\n");
 		ret[buffer - 1] = '\0';
+//		printf("DEBUG %s\n", ret);
 		len = strlen(ret);
-	} while (len >= buffer);
+		va_end(args);
+		va_copy(args, stash);
+	} while (len >= buffer - 1);
 	ret = realloc(ret, sizeof(char) * (len + 1));
+	va_end(stash);
 	return ret;
 }
 

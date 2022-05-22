@@ -90,6 +90,11 @@ static void print_mode_title() {
 	printf("\nTest Solver - Select algorithm\n");
 }
 
+static void print_mode_title2(const char* cat_name) {
+	printf("\nTest Solver - Select algorithm\n");
+	printf("Category - %s\n", cat_name);
+}
+
 static void print_alg_info(int algo) {
 	if (algo == 9) {
 		pgcg_set_warning_colour();
@@ -163,50 +168,101 @@ int select_starting_word(char* buffer) {
 	return 0;
 }
 
-void testing_screen(const int algo, const char* starting_word) {
+//void testing_screen(const int algo, const char* starting_word) {
+//	clear_console();
+//	print_title_banner();
+//	// Code smell: New registry system should perfume this.
+//	switch (algo) {
+//	case 1:
+//		printf("\nPerforming test on Popular in position\n");
+//		break;
+//	case 2:
+//		printf("\nPerforming test on Popular in position (Larger vocabulary)\n");
+//		break;
+//	case 3:
+//		printf("\nPerforming test on Information Theory Algorithm (Hard mode)\n");
+//		break;
+//	case 4:
+//		printf("\nPerforming test on Information Theory Algorithm (Hard mode) (Larger vocabulary)\n");
+//		break;
+//	case 5:
+//		printf("\nPerforming test on Information Theory Algorithm (No hard mode)\n");
+//		break;
+//	case 6:
+//		printf("\nPerforming test on Information Theory Algorithm (No hard mode) (Resilient)\n");
+//		break;
+//	case 7:
+//		printf("\nPerforming test on Information Theory Algorithm (No hard mode) (Slightly Optimised)\n");
+//		break;
+//	case 8:
+//		printf("\nPerforming test on Information Theory Algorithm (No hard mode) (Larger vocabulary) (Slightly Optimised)\n");
+//		break;
+//	case 9:
+//		printf("\nPerforming test on Matt Dodge Hybrid Algorithm (No hard mode)\n");
+//		break;
+//	case 10:
+//		printf("\nPerforming test on Matt Dodge Hybrid Algorithm (No hard mode) (Larger vocabulary)\n");
+//		break;
+//	case 11:
+//		printf("\nPerforming test on Random guess Algorithm\n");
+//		break;
+//	case 12:
+//		printf("\nPerforming test on Random guess Algorithm (Larger vocabulary)\n");
+//		break;
+//	default:
+//		printf("\nPerforming test on Algorithm ?\n");
+//	}
+//	char tmp[strlen(starting_word) + 1];
+//	strcpy(tmp, starting_word);
+//	uppercase(tmp);
+//	printf("Starting word: %s\n\n", tmp);
+//}
+
+void testing_screen(algorithm* algo, const char* starting_word) {
 	clear_console();
 	print_title_banner();
 	// Code smell: New registry system should perfume this.
-	switch (algo) {
-	case 1:
-		printf("\nPerforming test on Popular in position\n");
-		break;
-	case 2:
-		printf("\nPerforming test on Popular in position (Larger vocabulary)\n");
-		break;
-	case 3:
-		printf("\nPerforming test on Information Theory Algorithm (Hard mode)\n");
-		break;
-	case 4:
-		printf("\nPerforming test on Information Theory Algorithm (Hard mode) (Larger vocabulary)\n");
-		break;
-	case 5:
-		printf("\nPerforming test on Information Theory Algorithm (No hard mode)\n");
-		break;
-	case 6:
-		printf("\nPerforming test on Information Theory Algorithm (No hard mode) (Resilient)\n");
-		break;
-	case 7:
-		printf("\nPerforming test on Information Theory Algorithm (No hard mode) (Slightly Optimised)\n");
-		break;
-	case 8:
-		printf("\nPerforming test on Information Theory Algorithm (No hard mode) (Larger vocabulary) (Slightly Optimised)\n");
-		break;
-	case 9:
-		printf("\nPerforming test on Matt Dodge Hybrid Algorithm (No hard mode)\n");
-		break;
-	case 10:
-		printf("\nPerforming test on Matt Dodge Hybrid Algorithm (No hard mode) (Larger vocabulary)\n");
-		break;
-	case 11:
-		printf("\nPerforming test on Random guess Algorithm\n");
-		break;
-	case 12:
-		printf("\nPerforming test on Random guess Algorithm (Larger vocabulary)\n");
-		break;
-	default:
-		printf("\nPerforming test on Algorithm ?\n");
-	}
+	printf("\nPerforming test on %s", algo -> name);
+//	switch (algo) {
+//	case 1:
+//		printf("\nPerforming test on Popular in position\n");
+//		break;
+//	case 2:
+//		printf("\nPerforming test on Popular in position (Larger vocabulary)\n");
+//		break;
+//	case 3:
+//		printf("\nPerforming test on Information Theory Algorithm (Hard mode)\n");
+//		break;
+//	case 4:
+//		printf("\nPerforming test on Information Theory Algorithm (Hard mode) (Larger vocabulary)\n");
+//		break;
+//	case 5:
+//		printf("\nPerforming test on Information Theory Algorithm (No hard mode)\n");
+//		break;
+//	case 6:
+//		printf("\nPerforming test on Information Theory Algorithm (No hard mode) (Resilient)\n");
+//		break;
+//	case 7:
+//		printf("\nPerforming test on Information Theory Algorithm (No hard mode) (Slightly Optimised)\n");
+//		break;
+//	case 8:
+//		printf("\nPerforming test on Information Theory Algorithm (No hard mode) (Larger vocabulary) (Slightly Optimised)\n");
+//		break;
+//	case 9:
+//		printf("\nPerforming test on Matt Dodge Hybrid Algorithm (No hard mode)\n");
+//		break;
+//	case 10:
+//		printf("\nPerforming test on Matt Dodge Hybrid Algorithm (No hard mode) (Larger vocabulary)\n");
+//		break;
+//	case 11:
+//		printf("\nPerforming test on Random guess Algorithm\n");
+//		break;
+//	case 12:
+//		printf("\nPerforming test on Random guess Algorithm (Larger vocabulary)\n");
+//		break;
+//	default:
+//		printf("\nPerforming test on Algorithm ?\n");
+//	}
 	char tmp[strlen(starting_word) + 1];
 	strcpy(tmp, starting_word);
 	uppercase(tmp);
@@ -492,23 +548,29 @@ void tester_thread() {
 		print_error_ln("ERROR: No more memory space available.");
 		return;
 	}
-	int algorithm = 0;
+//	int algorithm = 0;
+	algorithm* algo = 0;
 	char starting_word[wordle_word_length + 1];
 	if (select_word_bank(test_list)) {
 		wlist_delete(test_list);
 		return;
 	}
-	if (select_algo_page(print_mode_title, &algorithm, print_alg_info)) {
+//	if (select_algo_page(print_mode_title, &algorithm, print_alg_info)) {
+//		wlist_delete(test_list);
+//		return;
+//	}
+//	algorithm++;
+	if (select_cat_page(print_mode_title, print_mode_title2, "", "", &algo, print_alg_info)) {
 		wlist_delete(test_list);
 		return;
 	}
-	algorithm++;
 	if (select_starting_word(starting_word)) {
 		wlist_delete(test_list);
 		return;
 	}
-	testing_screen(algorithm, starting_word);
-	if (test_algo_1_thread(test_list, algorithm, starting_word)) {
+//	testing_screen(algorithm, starting_word)
+	testing_screen(algo, starting_word);
+	if (test_algo_1_thread(test_list, algo, starting_word)) {
 		wlist_delete(test_list);
 		return;
 	}

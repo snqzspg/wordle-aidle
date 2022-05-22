@@ -124,10 +124,16 @@ algorithm* column_popular;
 algorithm* column_popular_larger_vocab;
 algorithm* information_theory;
 algorithm* information_theory_larger;
+algorithm* information_theory_slightly_optimised;
+algorithm* information_theory_slightly_optimised_larger;
 algorithm* information_theory_hard;
 algorithm* information_theory_hard_larger;
 algorithm* matt_dodge_hybrid;
 algorithm* matt_dodge_hybrid_larger;
+algorithm* matt_dodge_hybrid_hard;
+algorithm* matt_dodge_hybrid_hard_larger;
+algorithm* random_pick;
+algorithm* random_pick_larger;
 
 void register_algorithms() {
 	column_popular_cat = algo_category_register(0, "Column Popular");
@@ -141,22 +147,24 @@ void register_algorithms() {
 
 	information_theory = register_algorithm(information_theory_cat, 2, "Information Theory (No hard mode)", 2, guess_by_information_entropy, information_theory_init, NULL, NULL);
 	information_theory_larger = register_algorithm(information_theory_cat, 3, "Information Theory (No hard mode) (No answer dependence)", 2, guess_by_information_entropy, information_theory_more_vocab_init, NULL, NULL);
-	information_theory_hard = register_algorithm(information_theory_cat, 4, "Information Theory (Hard mode)", 2, guess_by_information_entropy, information_theory_hard_init, NULL, NULL);
-	information_theory_hard_larger = register_algorithm(information_theory_cat, 5, "Information Theory (Hard mode) (No answer dependence)", 2, guess_by_information_entropy, information_theory_more_vocab_hard_init, NULL, NULL);
+	information_theory_slightly_optimised = register_algorithm(information_theory_cat, 4, "Information Theory (No hard mode) (Slightly Optimised)", 2, guess_by_information_entropy_optimised_level_1, information_theory_init, NULL, NULL);
+	information_theory_slightly_optimised_larger = register_algorithm(information_theory_cat, 5, "Information Theory (No hard mode) (No answer dependence) (Slightly Optimised)", 2, guess_by_information_entropy_optimised_level_1, information_theory_more_vocab_init, NULL, NULL);
+	information_theory_hard = register_algorithm(information_theory_cat, 6, "Information Theory (Hard mode)", 2, guess_by_information_entropy, information_theory_hard_init, NULL, NULL);
+	information_theory_hard_larger = register_algorithm(information_theory_cat, 7, "Information Theory (Hard mode) (No answer dependence)", 2, guess_by_information_entropy, information_theory_more_vocab_hard_init, NULL, NULL);
 
 	matt_dodge_cat = algo_category_register(2, "Matt Dodge Hybrid");
 	alcat_add_desc(matt_dodge_cat, "Inspired by an article by Matt Dodge, this mixes the Column Popular and Information Theory algorithms in order to make the suggesting process more efficient.");
 
-	register_algorithm(matt_dodge_cat, 6, "Matt Dodge Hybrid (No hard mode)", 2, guess_by_information_freq_hybrid, matt_dodge_init, NULL, NULL);
-	register_algorithm(matt_dodge_cat, 7, "Matt Dodge Hybrid (No hard mode) (No answer dependence)", 2, guess_by_information_freq_hybrid, matt_dodge_larger_init, NULL, NULL);
-	register_algorithm(matt_dodge_cat, 8, "Matt Dodge Hybrid (Hard mode)", 2, guess_by_information_freq_hybrid, matt_dodge_hard_init, NULL, NULL);
-	register_algorithm(matt_dodge_cat, 9, "Matt Dodge Hybrid (Hard mode) (No answer dependence)", 2, guess_by_information_freq_hybrid, matt_dodge_hard_larger_init, NULL, NULL);
+	matt_dodge_hybrid = register_algorithm(matt_dodge_cat, 8, "Matt Dodge Hybrid (No hard mode)", 2, guess_by_information_freq_hybrid, matt_dodge_init, NULL, NULL);
+	matt_dodge_hybrid_larger = register_algorithm(matt_dodge_cat, 9, "Matt Dodge Hybrid (No hard mode) (No answer dependence)", 2, guess_by_information_freq_hybrid, matt_dodge_larger_init, NULL, NULL);
+	matt_dodge_hybrid_hard = register_algorithm(matt_dodge_cat, 10, "Matt Dodge Hybrid (Hard mode)", 2, guess_by_information_freq_hybrid, matt_dodge_hard_init, NULL, NULL);
+	matt_dodge_hybrid_hard_larger = register_algorithm(matt_dodge_cat, 11, "Matt Dodge Hybrid (Hard mode) (No answer dependence)", 2, guess_by_information_freq_hybrid, matt_dodge_hard_larger_init, NULL, NULL);
 
 	random_pick_cat = algo_category_register(3, "Random Guess");
 	alcat_add_desc(random_pick_cat, "Self-explanatory");
 
-	register_algorithm(random_pick_cat, 10, "Random Pick", 2, guess_randomly, random_pick_init, NULL, NULL);
-	register_algorithm(random_pick_cat, 11, "Random Pick (No answer dependence)", 2, guess_randomly, random_pick_larger_init, NULL, NULL);
+	random_pick = register_algorithm(random_pick_cat, 12, "Random Pick", 2, guess_randomly, random_pick_init, NULL, NULL);
+	random_pick_larger = register_algorithm(random_pick_cat, 13, "Random Pick (No answer dependence)", 2, guess_randomly, random_pick_larger_init, NULL, NULL);
 }
 
 void algorithm_delete(algorithm* x) {
@@ -173,16 +181,51 @@ void alcats_clear() {
 			for (size_t j = 0; j < registered_algo_cats[i].registered_algo_count; j++) {
 				algorithm_delete(registered_algo_cats[i].registered_algorithms[j]);
 			}
+			free(registered_algo_cats[i].registered_algorithms);
 		}
 	}
 	free(registered_algo_cats);
+}
+
+static const size_t get_algo_name_len(const void* bytes, const size_t algosize) {
+	return strlen((*((algorithm**)bytes)) -> name);
+}
+
+static void cpy_algo_name(const void* bytes, const size_t algosize, char* buffer) {
+	strcpy(buffer, (*((algorithm**)bytes)) -> name);
 }
 
 /**
  * Returns 1 if asked to cancel.
  * The selected algorithm will be copied into the dereferenced algo variable.
  */
-int new_select_algo_page(void (*print_title_stuff)(), int* algo, void (*print_algo_add_info)(int algo)) {
+int select_algo_by_cat_page(const alcat* category, void (*print_title_stuff)(const char* cat_name), const char* algo_select_prefix, algorithm** algo, void (*print_algo_add_info)(int algo)) {
+	char* input = NULL;
+	while (1) {
+		clear_console();
+		if (print_title_stuff != NULL) print_title_stuff(category -> name);
+		printf("\n");
+		print_wraped_linef("%s", 0, PGINDENT, algo_select_prefix);
+		print_options_list(category -> registered_algorithms, category -> registered_algo_count, sizeof(algorithm*), 1, get_algo_name_len, cpy_algo_name);
+		print_wraped_linef("q - Exit\n", 1, PGINDENT);
+		printf(" >> ");
+		free(input);
+		input = ask_user();
+		lowercase(input);
+		if (input == NULL) {
+			continue;
+		}
+		if (strcmp(input, "q") == 0) {
+			free(input);
+			return 1;
+		}
+		size_t algo_idx = get_idx_from_option_key(input);
+		if (algo_idx < category -> registered_algo_count) {
+			*algo = category -> registered_algorithms[algo_idx];
+			free(input);
+			return 0;
+		}
+	}
     return 0;
 }
 
@@ -196,21 +239,21 @@ static void cpy_cat_name(const void* bytes, const size_t catsize, char* buffer) 
 
 /**
  * Returns 1 if asked to cancel.
- * The selected category will be copied into the dereferenced selected_cat variable.
+ * The selected algorithm will be copied into the dereferenced selected_algo variable.
  */
-int select_cat_page(void (*print_title_stuff)(), char* cat_select_prefix, alcat* selected_cat) {
+int select_cat_page(void (*print_title_stuff)(), void (*print_algo_title_stuff)(const char* cat_name), char* cat_select_prefix, const char* algo_select_prefix, algorithm** selected_algo, void (*print_algo_add_info)(int algo)) {
 	char* input = NULL;
 	while (1) {
 		clear_console();
 		if (print_title_stuff != NULL) print_title_stuff();
 		printf("\n");
 		print_wraped_linef("%s", 0, PGINDENT, cat_select_prefix);
-		for (size_t i = 0; i < registered_algos_len; i++) {
-			size_t optlen = get_option_key_len(i);
-			char optkey[optlen + 1];
-			cpy_option_key(i, optkey);
-			print_wraped_linef("%s - %s", 1, PGINDENT, optkey, registered_algo_cats[i].name);
-		}
+//		for (size_t i = 0; i < registered_algos_len; i++) {
+//			size_t optlen = get_option_key_len(i);
+//			char optkey[optlen + 1];
+//			cpy_option_key(i, optkey);
+//			print_wraped_linef("%s - %s", 1, PGINDENT, optkey, registered_algo_cats[i].name);
+//		}
 		print_options_list(registered_algo_cats, registered_algos_len, sizeof(alcat), 1, get_cat_name_len, cpy_cat_name);
 		// TODO: make universal hashmap that takes in void pointers for both keys and values, as well as the respective typesizes.
 		//       or string to void ptrs hashmap instead.
@@ -228,7 +271,11 @@ int select_cat_page(void (*print_title_stuff)(), char* cat_select_prefix, alcat*
 		}
 		size_t algo_idx = get_idx_from_option_key(input);
 		if (algo_idx < registered_algos_len) {
-			*selected_cat = registered_algo_cats[algo_idx];
+			alcat* selected_cat = registered_algo_cats + algo_idx;
+			if (select_algo_by_cat_page(selected_cat, print_algo_title_stuff, algo_select_prefix, selected_algo, print_algo_add_info)) {
+				continue;
+			}
+//			*selected_algo = registered_algo_cats + algo_idx;
 			free(input);
 			return 0;
 		}

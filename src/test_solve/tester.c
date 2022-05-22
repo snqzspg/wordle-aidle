@@ -4,6 +4,7 @@
 #include <time.h>
 
 #include "../error/print_error.h"
+#include "../picking_algorithm/algorithms.h"
 #include "../terminal_helper/cons_graphics.h"
 #include "../utilities/int_util.h"
 #include "../utilities/time_util.h"
@@ -186,7 +187,7 @@ static char cpy_label(char* __restrict__ buffer, const size_t bufferlen, const c
 }
 
 static void test_sess_test_word(test_sess* t, char* answer) {
-	void* slvr = t -> create_slvr(t);
+	void* slvr = t -> create_slvr(t -> algo, t);
 	if (slvr == NULL) {
 		print_error_ln("test_sess_test_word slvr is NULL");
 	}
@@ -333,13 +334,15 @@ size_t test_sess_last_unsuccessful(test_sess* t, size_t start, size_t fallback) 
 	return fallback;
 }
 
-test_sess* test_sess_create(wlist* list_to_test, const char* algo_name, const char* starting_word, void* (*create_slvr) (test_sess* session), char (*slvr_open) (void* s, test_sess* session), const char* (*slvr_suggest) (void* s, test_sess* session), void (*slvr_receive_result) (void* s, test_sess* session, char* word, char* result), void (*delete_slvr) (void* s, test_sess* session)) {
+//test_sess* test_sess_create(wlist* list_to_test, const char* algo_name, const char* starting_word, void* (*create_slvr) (test_sess* session), char (*slvr_open) (void* s, test_sess* session), const char* (*slvr_suggest) (void* s, test_sess* session), void (*slvr_receive_result) (void* s, test_sess* session, char* word, char* result), void (*delete_slvr) (void* s, test_sess* session)) {
+test_sess* test_sess_create(wlist* list_to_test, algorithm* algo_name, const char* starting_word, void* (*create_slvr) (algorithm* algo, test_sess* session), char (*slvr_open) (void* s, test_sess* session), const char* (*slvr_suggest) (void* s, test_sess* session), void (*slvr_receive_result) (void* s, test_sess* session, char* word, char* result), void (*delete_slvr) (void* s, test_sess* session)) {
 	test_sess* newsession = malloc(sizeof(test_sess));
 	if (newsession == NULL) {
 		print_error_ln("test_sess nooo no more RAM left....");
 		return NULL;
 	}
 
+	newsession -> algo = algo_name;
 	newsession -> create_slvr = create_slvr;
 	newsession -> slvr_open = slvr_open;
 	newsession -> slvr_suggest = slvr_suggest;
@@ -353,14 +356,14 @@ test_sess* test_sess_create(wlist* list_to_test, const char* algo_name, const ch
 		return NULL;
 	}
 
-	newsession -> algorithm_name = malloc(sizeof(char) * (strlen(algo_name) + 1));
+	newsession -> algorithm_name = malloc(sizeof(char) * (strlen(algo_name -> name) + 1));
 	if (newsession -> algorithm_name == NULL) {
 		print_error_ln("");
 		wlist_delete(newsession -> game_wlist);
 		free(newsession);
 		return NULL;
 	}
-	strcpy(newsession -> algorithm_name, algo_name);
+	strcpy(newsession -> algorithm_name, algo_name -> name);
 
 	newsession -> starting_word = malloc(sizeof(char) * (strlen(starting_word) + 1));
 	if (newsession -> starting_word == NULL) {

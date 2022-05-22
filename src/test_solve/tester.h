@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 
+#include "../picking_algorithm/algorithms.h"
 #include "../wordle/guess_bucket.h"
 #include "../wordle/wlgame.h"
 #include "../wordle/word_list.h"
@@ -25,7 +26,7 @@ void guess_dist_delete(guess_dist* d);
 typedef struct test_session test_sess;
 
 struct test_session {
-	void* (*create_slvr) (test_sess* session);
+	void* (*create_slvr) (algorithm* algo, test_sess* session);
 	char (*slvr_open) (void* s, test_sess* session);
 	const char* (*slvr_suggest) (void* s, test_sess* session);
 	void (*slvr_receive_result) (void* s, test_sess* session, char* word, char* result);
@@ -43,6 +44,7 @@ struct test_session {
 	double time_taken;
 	gbucket** boards;
 	guess_dist* distribution;
+	algorithm* algo; // No need to free this
 };
 
 void test_sess_execute_singlethread(test_sess* t, void (*print_fx)(test_sess* tss));
@@ -50,7 +52,8 @@ int test_sess_log_result(test_sess* t, const char* logname);
 void test_sess_print_result(test_sess* t);
 size_t test_sess_first_unsuccessful(test_sess* t, size_t start, size_t fallback);
 size_t test_sess_last_unsuccessful(test_sess* t, size_t start, size_t fallback);
-test_sess* test_sess_create(wlist* list_to_test, const char* algo_name, const char* starting_word, void* (*create_slvr) (test_sess* session), char (*slvr_open) (void* s, test_sess* session), const char* (*slvr_suggest) (void* s, test_sess* session), void (*slvr_receive_result) (void* s, test_sess* session, char* word, char* result), void (*delete_slvr) (void* s, test_sess* session));
+//test_sess* test_sess_create(wlist* list_to_test, const char* algo_name, const char* starting_word, void* (*create_slvr) (test_sess* sessconst algorithm* algo, ion), char (*slvr_open) (void* s, test_sess* session), const char* (*slvr_suggest) (void* s, test_sess* session), void (*slvr_receive_result) (void* s, test_sess* session, char* word, char* result), void (*delete_slvr) (void* s, test_sess* session));
+test_sess* test_sess_create(wlist* list_to_test, algorithm* algo_name, const char* starting_word, void* (*create_slvr) (algorithm* algo, test_sess* session), char (*slvr_open) (void* s, test_sess* session), const char* (*slvr_suggest) (void* s, test_sess* session), void (*slvr_receive_result) (void* s, test_sess* session, char* word, char* result), void (*delete_slvr) (void* s, test_sess* session));
 void test_sess_clear_boards(test_sess* t);
 void test_sess_delete(test_sess* t);
 

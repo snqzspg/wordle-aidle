@@ -6,7 +6,6 @@
 #include "../error/print_error.h"
 #include "../settings/settings.h"
 #include "../terminal_helper/cons_graphics.h"
-//#include "../utilities/cts_hashmap.h"
 #include "letter_counter.h"
 
 const int max_allowed_guesses = 6;
@@ -126,7 +125,7 @@ list_lrpair* gen_res_pairs(char* word, char* results) {
 	return l;
 }
 
-static void gbucket_update_latestguess(list_lrpair* latest_guess, lcounter* min_letters, lcounter* exact_letters/*, cts_hmap* map_min, cts_hmap* map_max*/) {
+static void gbucket_update_latestguess(list_lrpair* latest_guess, lcounter* min_letters, lcounter* exact_letters) {
 	if (latest_guess == NULL) {
 		print_error_ln("ERROR: gbucket_update_latestguess: latest_guess is null.");
 		return;
@@ -138,9 +137,6 @@ static void gbucket_update_latestguess(list_lrpair* latest_guess, lcounter* min_
 		if (res == 'b') {
 			size_t max_count = list_lrpair_count(latest_guess, let, 'y');
 			max_count += list_lrpair_count(latest_guess, let, 'g');
-//			if (!cts_hmap_containskey(map_max, let) || cts_hmap_get(map_max, let) < max_count) {
-//				cts_hmap_set(map_max, let, max_count);
-//			}
 			size_t current_max_count;
 			if (!lcounter_cpy(exact_letters, &current_max_count, let) || current_max_count < max_count) {
 				lcounter_set(exact_letters, let, max_count);
@@ -152,9 +148,6 @@ static void gbucket_update_latestguess(list_lrpair* latest_guess, lcounter* min_
 			if (!lcounter_cpy(min_letters, &current_min_count, let) || current_min_count < min_count) {
 				lcounter_set(min_letters, let, min_count);
 			}
-//			if (!cts_hmap_containskey(map_min, let) || cts_hmap_get(map_min, let) < min_count) {
-//				cts_hmap_set(map_min, let, min_count);
-//			}
 		}
 	}
 }
@@ -287,8 +280,10 @@ void gbucket_tessresprintall(gbucket* l, char print_label, char print_spoiler) {
 	if (print_label) {
 		if (gbucket_won(l)) {
 			printf("%s %lu/%lu\n", l -> label == NULL ? "missingno" : l -> label, (long unsigned int)guesses, (long unsigned int)(l -> max_guesses));
-		} else {
+		} else if (gbucket_lost(l)) {
 			printf("%s X/%lu\n", l -> label == NULL ? "missingno" : l -> label, (long unsigned int)(l -> max_guesses));
+		} else {
+			printf("%s :(/%lu\n", l -> label == NULL ? "missingno" : l -> label, (long unsigned int)(l -> max_guesses));
 		}
 	}
 	if (print_spoiler) {
@@ -315,19 +310,21 @@ void gbucket_writeres_all_file(gbucket* l, FILE* f, char dark_mode, char high_co
 	size_t guesses = l -> guess_count;
 	if (gbucket_won(l)) {
 		fprintf(f, "%s %lu/%lu\n\n", l -> label == NULL ? "missingno" : l -> label, (long unsigned int)guesses, (long unsigned int)(l -> max_guesses));
-	} else {
+	} else if (gbucket_lost(l)) {
 		fprintf(f, "%s X/%lu\n\n", l -> label == NULL ? "missingno" : l -> label, (long unsigned int)(l -> max_guesses));
+	} else {
+		fprintf(f, "%s :(/%lu\n\n", l -> label == NULL ? "missingno" : l -> label, (long unsigned int)(l -> max_guesses));
 	}
 	size_t i;
 	for (i = 0; i < guesses; i++) {
 		gbucket_writeres_file(l, f, i, dark_mode, high_contrast);
 		fwrite("\n", sizeof(char), 1, f);
 	}
-	fwrite("\n", sizeof(char), 1, f);
-	fwrite("NOTE: Only the scores from the official Wordle on The New York Times can be considered as legitimate. This score above does not count!\n", sizeof(char), 135, f);
-	fwrite("Site: https://www.nytimes.com/games/wordle/index.html (Surface)\n", sizeof(char), 64, f);
-	fwrite("Site: https://www.nytimesn7cgmftshazwhfgzm37qxb44r64ytbb2dj3x62d2lljsciiyd.onion/games/wordle/index.html (Onion)\n", sizeof(char), 113, f);
-	fwrite("\n", sizeof(char), 1, f);
+//	fwrite("\n", sizeof(char), 1, f);
+//	fwrite("NOTE: Only the scores from the official Wordle on The New York Times can be considered as legitimate. This score above does not count!\n", sizeof(char), 135, f);
+//	fwrite("Site: https://www.nytimes.com/games/wordle/index.html (Surface)\n", sizeof(char), 64, f);
+//	fwrite("Site: https://www.nytimesn7cgmftshazwhfgzm37qxb44r64ytbb2dj3x62d2lljsciiyd.onion/games/wordle/index.html (Onion)\n", sizeof(char), 113, f);
+//	fwrite("\n", sizeof(char), 1, f);
 }
 
 gbucket* gbucket_create(size_t max_guess, const char* label) {
@@ -344,10 +341,8 @@ gbucket* gbucket_create(size_t max_guess, const char* label) {
 	}
 	g -> guess_count = 0;
 	g -> max_guesses = max_guess;
-//	g -> min_letters = cts_hmap_createhashmap();
 	// This records the maximum count of black letters that should be in the correct word.
 	// Most of the letters should be 0, but this is to combat duplicate letters.
-//	g -> max_letters = cts_hmap_createhashmap();
 	g -> min_letters = lcounter_create(NUM_LETTERS);
 	g -> exact_letters = lcounter_create(NUM_LETTERS);
 	if (label != NULL && strlen(label) > 0) {
@@ -365,8 +360,6 @@ void gbucket_delete(gbucket* b) {
 		list_lrpair_delete(b -> guesses[i]);
 	}
 	free(b -> guesses);
-//	cts_hmap_deletehashmap(b -> min_letters);
-//	cts_hmap_deletehashmap(b -> max_letters);
 	lcounter_delete(b -> exact_letters);
 	lcounter_delete(b -> min_letters);
 	free(b -> label);

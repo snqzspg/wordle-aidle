@@ -86,10 +86,14 @@ const size_t extra_words_count = 5811;
 const size_t win_loss_words_len = 6;
 char* win_loss_words[6];
 
-void init_dict() {
+int init_dict() {
 	printf("Indexing %lu hardcoded words...\n(Hopefully you've got enough RAM :>)\n", (long unsigned int)(valid_words_count + hcded_dict_len + extra_words_count));
 
 	valid_words = wbank_create();
+
+	if (valid_words == NULL) {
+		return 1;
+	}
 
 	wbank_add(valid_words, "aahed");
 	wbank_add(valid_words, "aalii");
@@ -10760,11 +10764,19 @@ void init_dict() {
 	hcded_dict_ordered = malloc(sizeof(char*) * hcded_dict_len);
 	if (hcded_dict_ordered == NULL) {
 		printf("Problems indexing words: out of RAM -.-\n");
+		wbank_delete(valid_words);
+		return 1;
 	}
 	for (size_t i = 0; i < hcded_dict_len; i++) {
 		hcded_dict_ordered[i] = malloc(sizeof(char) * (hcded_dict_wlen + 1));
 		if (hcded_dict_ordered[i] == NULL) {
 			printf("Problems indexing words: out of RAM -.-\n");
+			for (size_t j = 0; j < i; j++) {
+				free(hcded_dict_ordered[j]);
+			}
+			free(hcded_dict_ordered);
+			wbank_delete(valid_words);
+			return 1;
 		}
 	}
 
@@ -13081,6 +13093,15 @@ void init_dict() {
 
 	hcded_dict = wbank_create();
 
+	if (hcded_dict == NULL) {
+		for (size_t i = 0; i < hcded_dict_len; i++) {
+			free(hcded_dict_ordered[i]);
+		}
+		free(hcded_dict_ordered);
+		wbank_delete(valid_words);
+		return 1;
+	}
+
 	for (size_t i = 0; i < hcded_dict_len; i++) {
 		deobfs_str(hcded_dict_ordered[i], i);
 		wbank_add(hcded_dict, hcded_dict_ordered[i]);
@@ -13088,6 +13109,16 @@ void init_dict() {
 	}
 
 	extra_words = wbank_create();
+
+	if (extra_words == NULL) {
+		wbank_delete(hcded_dict);
+		for (size_t i = 0; i < hcded_dict_len; i++) {
+			free(hcded_dict_ordered[i]);
+		}
+		free(hcded_dict_ordered);
+		wbank_delete(valid_words);
+		return 1;
+	}
 
 	wbank_add(extra_words, "kileh");
 	wbank_add(extra_words, "cotch");
@@ -18913,6 +18944,8 @@ void init_dict() {
 	strcpy(win_loss_words[4], "Great");
 	win_loss_words[5] = malloc(sizeof(char) * 5);
 	strcpy(win_loss_words[5], "Phew");
+
+	return 0;
 }
 
 void cleanup_dict() {

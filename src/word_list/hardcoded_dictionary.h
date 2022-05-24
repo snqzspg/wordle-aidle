@@ -49,7 +49,7 @@ extern char* win_loss_words[6];
 extern wbank* valid_words;
 extern wbank* extra_words;
 
-void init_dict();
+int init_dict();
 void cleanup_dict();
 
 #endif // HARDCODED_DICTIONARY_H_INCLUDED

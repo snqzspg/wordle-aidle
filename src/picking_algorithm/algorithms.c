@@ -44,7 +44,7 @@ static void alcat_add_algo(alcat* cat, algorithm* alg) {
 	cat -> registered_algo_count++;
 }
 
-algorithm* register_algorithm(alcat* cat, int id, const char* name, size_t min_word_lists, char* (*suggest_word) (gbucket* guess_board, wlist** word_lists, size_t nword_lists), void (*init) (solver* slvr, algorithm* algo), void (*cleanup) (solver* slvr, algorithm* algo), void (*guess_made) (solver* slvr, algorithm* algo)) {
+algorithm* register_algorithm(alcat* cat, int id, const char* name, size_t min_word_lists, char* (*suggest_word) (gbucket* guess_board, wlist** word_lists, size_t nword_lists, char show_word_list_to_user), void (*init) (solver* slvr, algorithm* algo), void (*cleanup) (solver* slvr, algorithm* algo), void (*guess_made) (solver* slvr, algorithm* algo)) {
 	algorithm* a = malloc(sizeof(algorithm));
 	a -> id = id;
 	a -> order = cat -> registered_algo_count;
@@ -137,13 +137,13 @@ algorithm* random_pick_larger;
 
 void register_algorithms() {
 	column_popular_cat = algo_category_register(0, "Column Popular");
-	alcat_add_desc(column_popular_cat, "Picks the most frequent letter of matching words per position after each guess.");
+	alcat_add_desc(column_popular_cat, "Picks the most frequent letter of matching words per position after each guess.\n\n\"No answer dependence\" algorithms avoids dependency on official Wordle answers.");
 
 	column_popular = register_algorithm(column_popular_cat, 0, "Column Popular", 1, guess_by_freq_cols, column_popular_init, NULL, NULL);
 	column_popular_larger_vocab = register_algorithm(column_popular_cat, 1, "Column Popular (No answer dependence)", 1, guess_by_freq_cols, column_popular_larger_init, NULL, NULL);
 
 	information_theory_cat = algo_category_register(1, "Information Theory");
-	alcat_add_desc(information_theory_cat, "The algorithm that uses Information Theory to produce guess that maximizes the information obtained.\nThis algorithm can be slow, especially if it is allowed to choose non-hard mode words.");
+	alcat_add_desc(information_theory_cat, "The algorithm that uses Information Theory to produce guess that maximizes the information obtained.\nThis algorithm can be slow, especially if it is allowed to choose non-hard mode words.\n(Information Theory algorithms have time complexities of O(n^2).)\n\n\"No answer dependence\" algorithms avoids dependency on official Wordle answers.");
 
 	information_theory = register_algorithm(information_theory_cat, 2, "Information Theory (No hard mode)", 2, guess_by_information_entropy, information_theory_init, NULL, NULL);
 	information_theory_larger = register_algorithm(information_theory_cat, 3, "Information Theory (No hard mode) (No answer dependence)", 2, guess_by_information_entropy, information_theory_more_vocab_init, NULL, NULL);
@@ -153,7 +153,7 @@ void register_algorithms() {
 	information_theory_hard_larger = register_algorithm(information_theory_cat, 7, "Information Theory (Hard mode) (No answer dependence)", 2, guess_by_information_entropy, information_theory_more_vocab_hard_init, NULL, NULL);
 
 	matt_dodge_cat = algo_category_register(2, "Matt Dodge Hybrid");
-	alcat_add_desc(matt_dodge_cat, "Inspired by an article by Matt Dodge, this mixes the Column Popular and Information Theory algorithms in order to make the suggesting process more efficient.");
+	alcat_add_desc(matt_dodge_cat, "Inspired by an article by Matt Dodge, this mixes the Column Popular and Information Theory algorithms in order to make the suggesting process more efficient.\n\n\"No answer dependence\" algorithms avoids dependency on official Wordle answers.");
 
 	matt_dodge_hybrid = register_algorithm(matt_dodge_cat, 8, "Matt Dodge Hybrid (No hard mode)", 2, guess_by_information_freq_hybrid, matt_dodge_init, NULL, NULL);
 	matt_dodge_hybrid_larger = register_algorithm(matt_dodge_cat, 9, "Matt Dodge Hybrid (No hard mode) (No answer dependence)", 2, guess_by_information_freq_hybrid, matt_dodge_larger_init, NULL, NULL);
@@ -161,7 +161,7 @@ void register_algorithms() {
 	matt_dodge_hybrid_hard_larger = register_algorithm(matt_dodge_cat, 11, "Matt Dodge Hybrid (Hard mode) (No answer dependence)", 2, guess_by_information_freq_hybrid, matt_dodge_hard_larger_init, NULL, NULL);
 
 	random_pick_cat = algo_category_register(3, "Random Guess");
-	alcat_add_desc(random_pick_cat, "Self-explanatory");
+	alcat_add_desc(random_pick_cat, "Self-explanatory\n\n\"No answer dependence\" algorithms avoids dependency on official Wordle answers.");
 
 	random_pick = register_algorithm(random_pick_cat, 12, "Random Pick", 2, guess_randomly, random_pick_init, NULL, NULL);
 	random_pick_larger = register_algorithm(random_pick_cat, 13, "Random Pick (No answer dependence)", 2, guess_randomly, random_pick_larger_init, NULL, NULL);
@@ -204,10 +204,16 @@ int select_algo_by_cat_page(const alcat* category, void (*print_title_stuff)(con
 	while (1) {
 		clear_console();
 		if (print_title_stuff != NULL) print_title_stuff(category -> name);
+		printf("\nSelected category: %s\n", category -> name);
 		printf("\n");
-		print_wraped_linef("%s", 0, PGINDENT, algo_select_prefix);
+		print_wraped_linef("%s", 0, PGINDENT, algo_select_prefix == NULL || *algo_select_prefix == '\0' ? "Select a variant of this algorithm" : algo_select_prefix);
 		print_options_list(category -> registered_algorithms, category -> registered_algo_count, sizeof(algorithm*), 1, get_algo_name_len, cpy_algo_name);
-		print_wraped_linef("q - Exit\n", 1, PGINDENT);
+		print_wraped_linef("q - Back", 1, PGINDENT);
+		pgcg_set_note_colour();
+		if (category -> info != NULL) {
+			printf("\n%s\n\n", category -> info);
+		}
+		pgcg_reset_colour();
 		printf(" >> ");
 		free(input);
 		input = ask_user();
@@ -247,16 +253,8 @@ int select_cat_page(void (*print_title_stuff)(), void (*print_algo_title_stuff)(
 		clear_console();
 		if (print_title_stuff != NULL) print_title_stuff();
 		printf("\n");
-		print_wraped_linef("%s", 0, PGINDENT, cat_select_prefix);
-//		for (size_t i = 0; i < registered_algos_len; i++) {
-//			size_t optlen = get_option_key_len(i);
-//			char optkey[optlen + 1];
-//			cpy_option_key(i, optkey);
-//			print_wraped_linef("%s - %s", 1, PGINDENT, optkey, registered_algo_cats[i].name);
-//		}
+		print_wraped_linef("%s", 0, PGINDENT, cat_select_prefix == NULL || *cat_select_prefix == '\0' ? "Select a category:" : cat_select_prefix);
 		print_options_list(registered_algo_cats, registered_algos_len, sizeof(alcat), 1, get_cat_name_len, cpy_cat_name);
-		// TODO: make universal hashmap that takes in void pointers for both keys and values, as well as the respective typesizes.
-		//       or string to void ptrs hashmap instead.
 		print_wraped_linef("q - Exit\n", 1, PGINDENT);
 		printf(" >> ");
 		free(input);
@@ -275,7 +273,6 @@ int select_cat_page(void (*print_title_stuff)(), void (*print_algo_title_stuff)(
 			if (select_algo_by_cat_page(selected_cat, print_algo_title_stuff, algo_select_prefix, selected_algo, print_algo_add_info)) {
 				continue;
 			}
-//			*selected_algo = registered_algo_cats + algo_idx;
 			free(input);
 			return 0;
 		}
@@ -288,128 +285,128 @@ int select_cat_page(void (*print_title_stuff)(), void (*print_algo_title_stuff)(
  * A temporary array to store the names of the variables in order.
  * Once the new algorithm registry system is ready, this will be removed.
  */
-const char algorithm_names[12][67] = {
-	"Popular in position",
-	"Popular in position (Larger vocabulary)",
-	"Information Theory (Hard mode)",
-	"Information Theory (Hard mode) (Larger vocabulary)",
-	"Information Theory (No hard mode)",
-	"Information Theory (No hard mode) (Resilient)",
-	"Information Theory (No hard mode) (Slightly Optimised)",
-	"Information Theory (No hard mode) (Resilient) (Slightly Optimised)",
-	"Matt Dodge Hybrid (No hard mode)",
-	"Matt Dodge Hybrid (No hard mode) (Resilient)",
-	"Random guess",
-	"Random guess (Larger vocabulary)"
-};
+//const char algorithm_names[12][67] = {
+//	"Popular in position",
+//	"Popular in position (Larger vocabulary)",
+//	"Information Theory (Hard mode)",
+//	"Information Theory (Hard mode) (Larger vocabulary)",
+//	"Information Theory (No hard mode)",
+//	"Information Theory (No hard mode) (Resilient)",
+//	"Information Theory (No hard mode) (Slightly Optimised)",
+//	"Information Theory (No hard mode) (Resilient) (Slightly Optimised)",
+//	"Matt Dodge Hybrid (No hard mode)",
+//	"Matt Dodge Hybrid (No hard mode) (Resilient)",
+//	"Random guess",
+//	"Random guess (Larger vocabulary)"
+//};
 
 /**
  * Returns 1 if asked to cancel.
  * The selected algorithm will be copied into the dereferenced algo variable.
  */
-int select_algo_page(void (*print_title_stuff)(), int* algo, void (*print_algo_add_info)(int algo)) {
-	char* input = NULL;
-	while (1) {
-		clear_console();
-		if (print_title_stuff != NULL) print_title_stuff();
-		printf("\n");
-		print_wraped_linef("Choose an Algorithm by typing the corresponding number:", 0, PGINDENT);
-		print_wraped_linef("1 - Popular in position", 1, PGINDENT);
-		if (print_algo_add_info != NULL) print_algo_add_info(0);
-		print_wraped_linef("2 - Popular in position (Larger vocabulary)", 1, PGINDENT);
-		if (print_algo_add_info != NULL) print_algo_add_info(1);
-		print_wraped_linef("3 - Information Theory (Hard mode)", 1, PGINDENT);
-		if (print_algo_add_info != NULL) print_algo_add_info(2);
-		print_wraped_linef("4 - Information Theory (Hard mode) (Larger vocabulary)", 1, PGINDENT);
-		if (print_algo_add_info != NULL) print_algo_add_info(3);
-		print_wraped_linef("w - Information Theory (No hard mode)", 1, PGINDENT);
-		if (print_algo_add_info != NULL) print_algo_add_info(4);
-		print_wraped_linef("e - Information Theory (No hard mode) (Resilient)", 1, PGINDENT);
-		if (print_algo_add_info != NULL) print_algo_add_info(5);
-		print_wraped_linef("r - Information Theory (No hard mode) (Slightly Optimised)", 1, PGINDENT);
-		if (print_algo_add_info != NULL) print_algo_add_info(6);
-		print_wraped_linef("a - Information Theory (No hard mode) (Resilient) (Slightly Optimised)", 1, PGINDENT);
-		if (print_algo_add_info != NULL) print_algo_add_info(7);
-		print_wraped_linef("s - Matt Dodge Hybrid (No hard mode)", 1, PGINDENT);
-		if (print_algo_add_info != NULL) print_algo_add_info(8);
-		print_wraped_linef("d - Matt Dodge Hybrid (No hard mode) (Resilient)", 1, PGINDENT);
-		if (print_algo_add_info != NULL) print_algo_add_info(9);
-		print_wraped_linef("f - Random guess", 1, PGINDENT);
-		if (print_algo_add_info != NULL) print_algo_add_info(10);
-		print_wraped_linef("z - Random guess (Larger vocabulary)", 1, PGINDENT);
-		if (print_algo_add_info != NULL) print_algo_add_info(11);
-		print_wraped_linef("q - Exit\n", 1, PGINDENT);
-		printf(" >> ");
-		free(input);
-		input = ask_user();
-		lowercase(input);
-		if (input == NULL) {
-			continue;
-		}
-		if (strcmp(input, "q") == 0) {
-			free(input);
-			return 1;
-		}
-		if (strcmp(input, "1") == 0) {
-			*algo = 0;
-			free(input);
-			return 0;
-		}
-		if (strcmp(input, "2") == 0) {
-			*algo = 1;
-			free(input);
-			return 0;
-		}
-		if (strcmp(input, "3") == 0) {
-			*algo = 2;
-			free(input);
-			return 0;
-		}
-		if (strcmp(input, "4") == 0) {
-			*algo = 3;
-			free(input);
-			return 0;
-		}
-		if (strcmp(input, "w") == 0) {
-			*algo = 4;
-			free(input);
-			return 0;
-		}
-		if (strcmp(input, "e") == 0) {
-			*algo = 5;
-			free(input);
-			return 0;
-		}
-		if (strcmp(input, "r") == 0) {
-			*algo = 6;
-			free(input);
-			return 0;
-		}
-		if (strcmp(input, "a") == 0) {
-			*algo = 7;
-			free(input);
-			return 0;
-		}
-		if (strcmp(input, "s") == 0) {
-			*algo = 8;
-			free(input);
-			return 0;
-		}
-		if (strcmp(input, "d") == 0) {
-			*algo = 9;
-			free(input);
-			return 0;
-		}
-		if (strcmp(input, "f") == 0) {
-			*algo = 10;
-			free(input);
-			return 0;
-		}
-		if (strcmp(input, "z") == 0) {
-			*algo = 11;
-			free(input);
-			return 0;
-		}
-	}
-	return 0;
-}
+//int select_algo_page(void (*print_title_stuff)(), int* algo, void (*print_algo_add_info)(int algo)) {
+//	char* input = NULL;
+//	while (1) {
+//		clear_console();
+//		if (print_title_stuff != NULL) print_title_stuff();
+//		printf("\n");
+//		print_wraped_linef("Choose an Algorithm by typing the corresponding number:", 0, PGINDENT);
+//		print_wraped_linef("1 - Popular in position", 1, PGINDENT);
+//		if (print_algo_add_info != NULL) print_algo_add_info(0);
+//		print_wraped_linef("2 - Popular in position (Larger vocabulary)", 1, PGINDENT);
+//		if (print_algo_add_info != NULL) print_algo_add_info(1);
+//		print_wraped_linef("3 - Information Theory (Hard mode)", 1, PGINDENT);
+//		if (print_algo_add_info != NULL) print_algo_add_info(2);
+//		print_wraped_linef("4 - Information Theory (Hard mode) (Larger vocabulary)", 1, PGINDENT);
+//		if (print_algo_add_info != NULL) print_algo_add_info(3);
+//		print_wraped_linef("w - Information Theory (No hard mode)", 1, PGINDENT);
+//		if (print_algo_add_info != NULL) print_algo_add_info(4);
+//		print_wraped_linef("e - Information Theory (No hard mode) (Resilient)", 1, PGINDENT);
+//		if (print_algo_add_info != NULL) print_algo_add_info(5);
+//		print_wraped_linef("r - Information Theory (No hard mode) (Slightly Optimised)", 1, PGINDENT);
+//		if (print_algo_add_info != NULL) print_algo_add_info(6);
+//		print_wraped_linef("a - Information Theory (No hard mode) (Resilient) (Slightly Optimised)", 1, PGINDENT);
+//		if (print_algo_add_info != NULL) print_algo_add_info(7);
+//		print_wraped_linef("s - Matt Dodge Hybrid (No hard mode)", 1, PGINDENT);
+//		if (print_algo_add_info != NULL) print_algo_add_info(8);
+//		print_wraped_linef("d - Matt Dodge Hybrid (No hard mode) (Resilient)", 1, PGINDENT);
+//		if (print_algo_add_info != NULL) print_algo_add_info(9);
+//		print_wraped_linef("f - Random guess", 1, PGINDENT);
+//		if (print_algo_add_info != NULL) print_algo_add_info(10);
+//		print_wraped_linef("z - Random guess (Larger vocabulary)", 1, PGINDENT);
+//		if (print_algo_add_info != NULL) print_algo_add_info(11);
+//		print_wraped_linef("q - Exit\n", 1, PGINDENT);
+//		printf(" >> ");
+//		free(input);
+//		input = ask_user();
+//		lowercase(input);
+//		if (input == NULL) {
+//			continue;
+//		}
+//		if (strcmp(input, "q") == 0) {
+//			free(input);
+//			return 1;
+//		}
+//		if (strcmp(input, "1") == 0) {
+//			*algo = 0;
+//			free(input);
+//			return 0;
+//		}
+//		if (strcmp(input, "2") == 0) {
+//			*algo = 1;
+//			free(input);
+//			return 0;
+//		}
+//		if (strcmp(input, "3") == 0) {
+//			*algo = 2;
+//			free(input);
+//			return 0;
+//		}
+//		if (strcmp(input, "4") == 0) {
+//			*algo = 3;
+//			free(input);
+//			return 0;
+//		}
+//		if (strcmp(input, "w") == 0) {
+//			*algo = 4;
+//			free(input);
+//			return 0;
+//		}
+//		if (strcmp(input, "e") == 0) {
+//			*algo = 5;
+//			free(input);
+//			return 0;
+//		}
+//		if (strcmp(input, "r") == 0) {
+//			*algo = 6;
+//			free(input);
+//			return 0;
+//		}
+//		if (strcmp(input, "a") == 0) {
+//			*algo = 7;
+//			free(input);
+//			return 0;
+//		}
+//		if (strcmp(input, "s") == 0) {
+//			*algo = 8;
+//			free(input);
+//			return 0;
+//		}
+//		if (strcmp(input, "d") == 0) {
+//			*algo = 9;
+//			free(input);
+//			return 0;
+//		}
+//		if (strcmp(input, "f") == 0) {
+//			*algo = 10;
+//			free(input);
+//			return 0;
+//		}
+//		if (strcmp(input, "z") == 0) {
+//			*algo = 11;
+//			free(input);
+//			return 0;
+//		}
+//	}
+//	return 0;
+//}

@@ -20,7 +20,7 @@
 
 static void* create_solver_1(algorithm* algo, test_sess* session) {
 //	return solver_create(guess_by_freq_cols, 0);
-	return solver_create(algo);
+	return solver_create(algo, 0);
 //	return solver_create_w_alt_list(guess_by_freq_cols, 0, 2, 1, 0);
 }
 

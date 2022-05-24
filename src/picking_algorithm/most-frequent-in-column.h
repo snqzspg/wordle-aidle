@@ -40,7 +40,6 @@
 void column_popular_init(solver* slvr, algorithm* algo);
 void column_popular_larger_init(solver* slvr, algorithm* algo);
 
-//char* guess_by_freq_cols(wlist* l, gbucket* g, wlist* alt_list);
-char* guess_by_freq_cols(gbucket* guess_board, wlist** word_lists, size_t nword_lists);
+char* guess_by_freq_cols(gbucket* guess_board, wlist** word_lists, size_t nword_lists, char show_word_list_to_user);
 
 #endif // MOST_FREQUENT_IN_COLUMN_H_INCLUDED

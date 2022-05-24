@@ -86,17 +86,17 @@ void print_intro_page() {
 	printf("Type your first result to continue, or 'q' to exit.\n");
 }
 
-static void print_algo_info(int algo) {
-	pgcg_set_note_colour();
-	switch (algo) {
-	case 7:
-		printf("    Information Theory algorithms have time complexities of O(n^2).\n");
-		break;
-	case 11:
-		printf("    Larger vocabulary/resilient algorithms avoids dependency\n    on official Wordle answers.\n");
-	}
-	pgcg_reset_colour();
-}
+//static void print_algo_info(int algo) {
+//	pgcg_set_note_colour();
+//	switch (algo) {
+//	case 7:
+//		printf("    Information Theory algorithms have time complexities of O(n^2).\n");
+//		break;
+//	case 11:
+//		printf("    Larger vocabulary/resilient algorithms avoids dependency\n    on official Wordle answers.\n");
+//	}
+//	pgcg_reset_colour();
+//}
 
 char* prompt_input(char first_guess) {
 	printf("word result >> ");
@@ -268,7 +268,7 @@ void option1_thread() {
 //	if (select_algo_by_cat_page(category, print_mode_title, "", "", &algo, NULL)) {
 //		return;
 //	}
-	solver* w_solver = solver_create(algo);
+	solver* w_solver = solver_create(algo, 1);
 //	int alg = 0;
 //	if (select_algo_page(print_mode_title, &alg, print_algo_info)) {
 //		return;

@@ -16,7 +16,7 @@ struct algo_registry {
 	char* info;
 //	char* tag_desc; // Small desc
 	size_t min_word_lists;
-	char* (*suggest_word) (gbucket* guess_board, wlist** word_lists, size_t nword_lists);
+	char* (*suggest_word) (gbucket* guess_board, wlist** word_lists, size_t nword_lists, char show_word_list_to_user);
 	void (*init) (solver* slvr, algorithm* algo);
 	void (*cleanup) (solver* slvr, algorithm* algo); // Note that every wlist in the solver will be automatically freed after this.
 	void (*guess_made) (solver* slvr, algorithm* algo); // Note that word lists with standard filter enabled will be filtered before this.
@@ -32,19 +32,15 @@ typedef struct algo_category_registry {
 	size_t registered_algo_alloc;
 } alcat;
 
-//extern const char* standard_category_selection_prefix = "";
-
-algorithm* register_algorithm(alcat* cat, int id, const char* name, size_t min_word_lists, char* (*suggest_word) (gbucket* guess_board, wlist** word_lists, size_t nword_lists), void (*init) (solver* slvr, algorithm* algo), void (*cleanup) (solver* slvr, algorithm* algo), void (*guess_made) (solver* slvr, algorithm* algo));
+algorithm* register_algorithm(alcat* cat, int id, const char* name, size_t min_word_lists, char* (*suggest_word) (gbucket* guess_board, wlist** word_lists, size_t nword_lists, char show_word_list_to_user), void (*init) (solver* slvr, algorithm* algo), void (*cleanup) (solver* slvr, algorithm* algo), void (*guess_made) (solver* slvr, algorithm* algo));
 alcat* algo_category_register(const int id, const char* name);
 void alcat_add_desc(alcat* cat, const char* desc);
 void register_algorithms();
 void alcats_clear();
 
-//int select_algo_by_cat_page(const alcat* category, void (*print_title_stuff)(const char* cat_name), const char* algo_select_prefix, algorithm** algo, void (*print_algo_add_info)(int algo));
-
 int select_cat_page(void (*print_title_stuff)(), void (*print_algo_title_stuff)(const char* cat_name), char* cat_select_prefix, const char* algo_select_prefix, algorithm** selected_algo, void (*print_algo_add_info)(int algo));
 
-int select_algo_page(void (*print_title_stuff)(), int* algo, void (*print_algo_add_info)(int algo));
+//int select_algo_page(void (*print_title_stuff)(), int* algo, void (*print_algo_add_info)(int algo));
 
 extern alcat* column_popular_cat;
 extern alcat* information_theory_cat;
@@ -66,6 +62,6 @@ extern algorithm* matt_dodge_hybrid_hard_larger;
 extern algorithm* random_pick;
 extern algorithm* random_pick_larger;
 
-extern const char algorithm_names[12][67];
+//extern const char algorithm_names[12][67];
 
 #endif // ALGORITHMS_H_INCLUDED

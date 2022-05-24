@@ -86,18 +86,6 @@ void print_intro_page() {
 	printf("Type your first result to continue, or 'q' to exit.\n");
 }
 
-//static void print_algo_info(int algo) {
-//	pgcg_set_note_colour();
-//	switch (algo) {
-//	case 7:
-//		printf("    Information Theory algorithms have time complexities of O(n^2).\n");
-//		break;
-//	case 11:
-//		printf("    Larger vocabulary/resilient algorithms avoids dependency\n    on official Wordle answers.\n");
-//	}
-//	pgcg_reset_colour();
-//}
-
 char* prompt_input(char first_guess) {
 	printf("word result >> ");
 	return ask_user();

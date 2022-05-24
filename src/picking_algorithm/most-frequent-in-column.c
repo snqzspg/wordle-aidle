@@ -3,7 +3,6 @@
 #include <string.h>
 
 #include "../sorting/heap_sort.h"
-//#include "../utilities/cts_hashmap.h"
 #include "../wordle/guess_bucket.h"
 #include "../wordle/letter_counter.h"
 #include "../wordle/word_list.h"
@@ -92,20 +91,62 @@ static int cmpwscore(const void *a, const void *b) {
 	return ((*(struct word_score*)b).score - (*(struct word_score*)a).score);
 }
 
+static char* pick_highest_score(wlist* word_list, lcounter** score_counters, const size_t wlen) {
+	char* best_pick = NULL;
+	size_t max_score = 0;
+	wlword* j;
+	wlist_foreach(j, word_list) {
+		size_t score = 0;
+		for (size_t i = 0; i < wlen; i++) {
+			size_t letter_count = 0;
+			lcounter_cpy(score_counters[i], &letter_count, j -> word[i]);
+			score += letter_count;
+		}
+		if (score > max_score) {
+			best_pick = j -> word;
+			max_score = score;
+		}
+	}
+	return best_pick;
+}
+
+static char* sort_by_score(wlist* word_list, lcounter** score_counters, const size_t wlen) {
+	wlword* j;
+	size_t count = 0;
+	struct word_score scores[word_list -> length];
+	wlist_foreach(j, word_list) {
+		size_t score = 0;
+		for (size_t i = 0; i < wlen; i++) {
+			size_t letter_count = 0;
+			lcounter_cpy(score_counters[i], &letter_count, j -> word[i]);
+			score += letter_count;
+		}
+		scores[count].word = j -> word;
+		scores[count].score = score;
+		count++;
+	}
+
+	hsort(scores, word_list -> length, sizeof(struct word_score), cmpwscore);
+
+	count = 0;
+	wlist_foreach(j, word_list) {
+		j -> word = scores[count].word;
+		count++;
+	}
+	return wlist_get(word_list, 0);
+}
+
 /*
  * NOTE: Only the list at index 0 is displayed to the user
  */
-//char* guess_by_freq_cols(wlist* l, gbucket* g, wlist* alt_list) {
-char* guess_by_freq_cols(gbucket* guess_board, wlist** word_lists, size_t nword_lists) {
+char* guess_by_freq_cols(gbucket* guess_board, wlist** word_lists, size_t nword_lists, char show_word_list_to_user) {
 	if (word_lists[0] -> length == 0) {
 		return NULL;
 	}
 	size_t wlen = gbucket_getlastguess(guess_board) -> length;
-//	cts_hmap* d[wlen];
 	lcounter* score_counters[wlen];
 	for (size_t i = 0; i < wlen; i++) {
 		score_counters[i] = lcounter_create(NUM_LETTERS);
-//		d[i] = cts_hmap_createhashmap();
 	}
 	wlword* j;
 	wlist_foreach(j, word_lists[0]) {
@@ -113,57 +154,52 @@ char* guess_by_freq_cols(gbucket* guess_board, wlist** word_lists, size_t nword_
 			size_t current_score = 0;
 			lcounter_cpy(score_counters[i], &current_score, j -> word[i]);
 			lcounter_set(score_counters[i], j -> word[i], current_score + 1);
-//			cts_hmap_set(d[i], j -> word[i], cts_hmap_getwdefault(d[i], j -> word[i], 0) + 1);
 		}
 	}
-	size_t count = 0;
-	//size_t score_tally[word_lists[0] -> length];
-	struct word_score scores[word_lists[0] -> length];
-	wlist_foreach(j, word_lists[0]) {
-		size_t score = 0;
-		for (size_t i = 0; i < wlen; i++) {
-//			score += cts_hmap_getwdefault(d[i], j -> word[i], 0);
-			size_t letter_count = 0;
-			lcounter_cpy(score_counters[i], &letter_count, j -> word[i]);
-			score += letter_count;
-		}
-		scores[count].word = j -> word;
-		scores[count].score = score;
-		//score_tally[count] = score;
-		count++;
-	}
-
-	hsort(scores, word_lists[0] -> length, sizeof(struct word_score), cmpwscore);
-
-	count = 0;
-	wlist_foreach(j, word_lists[0]) {
-		j -> word = scores[count].word;
-		count++;
-	}
-
-	char* best_pick = wlist_get(word_lists[0], 0);
+//	size_t count = 0;
+//	struct word_score scores[word_lists[0] -> length];
+//	wlist_foreach(j, word_lists[0]) {
+//		size_t score = 0;
+//		for (size_t i = 0; i < wlen; i++) {
+//			size_t letter_count = 0;
+//			lcounter_cpy(score_counters[i], &letter_count, j -> word[i]);
+//			score += letter_count;
+//		}
+//		scores[count].word = j -> word;
+//		scores[count].score = score;
+//		count++;
+//	}
+//
+//	hsort(scores, word_lists[0] -> length, sizeof(struct word_score), cmpwscore);
+//
+//	count = 0;
+//	wlist_foreach(j, word_lists[0]) {
+//		j -> word = scores[count].word;
+//		count++;
+//	}
+//
+//	char* best_pick = wlist_get(word_lists[0], 0);
+	char* best_pick = show_word_list_to_user ? sort_by_score(word_lists[0], score_counters, wlen) : pick_highest_score(word_lists[0], score_counters, wlen);
 
 	if (nword_lists == 2 && word_lists[0] -> length > 2) {
-		size_t max_score = 0;
-		wlist_foreach(j, word_lists[1]) {
-			size_t score = 0;
-			for (size_t i = 0; i < wlen; i++) {
-//				score += cts_hmap_getwdefault(d[i], j -> word[i], 0);
-				size_t letter_count = 0;
-				lcounter_cpy(score_counters[i], &letter_count, j -> word[i]);
-				score += letter_count;
-			}
-			if (score > max_score) {
-				best_pick = j -> word;
-				max_score = score;
-			}
-		}
+		best_pick = pick_highest_score(word_lists[1], score_counters, wlen);
+//		size_t max_score = 0;
+//		wlist_foreach(j, word_lists[1]) {
+//			size_t score = 0;
+//			for (size_t i = 0; i < wlen; i++) {
+//				size_t letter_count = 0;
+//				lcounter_cpy(score_counters[i], &letter_count, j -> word[i]);
+//				score += letter_count;
+//			}
+//			if (score > max_score) {
+//				best_pick = j -> word;
+//				max_score = score;
+//			}
+//		}
 	}
 
 	for (size_t i = 0; i < wlen; i++) {
-//		cts_hmap_deletehashmap(d[i]);
 		lcounter_delete(score_counters[i]);
 	}
 	return best_pick;
-	//return wlist_get(word_lists[0], tallyindex(score_tally, word_lists[0] -> length, getmax(score_tally, word_lists[0] -> length)));
 }

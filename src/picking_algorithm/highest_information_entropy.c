@@ -17,6 +17,8 @@
 #include "algorithms.h"
 #include "highest_information_entropy.h"
 
+char log_scores = 0;
+
 static void cpy_answers(solver* slvr, algorithm* algo, int list_index) {
 	wbitem* item;
 	wbank_foreachitem(item, hcded_dict) {
@@ -140,24 +142,24 @@ static double get_entropy(wlist* list, const char* guess_word/*, const int recur
 //	return max;                                                                 // DO NOT REMOVE! Future implementation.
 //}                                                                               // DO NOT REMOVE! Future implementation.
 
-//struct word_entropy {
-//	char* word;
-//	double entropy;
-//};
+struct word_entropy {
+	char* word;
+	double entropy;
+};
 
 static int cmp_alpha_order(const void *a, const void *b) {
 	return strcmp((*(char**) a), (*(char**) b));
 }
 
-//static int cmpwentropy(const void *a, const void *b) {
-//	if ((*(struct word_entropy*)b).entropy > (*(struct word_entropy*)a).entropy) {
-//		return 1;
-//	}
-//	if ((*(struct word_entropy*)b).entropy < (*(struct word_entropy*)a).entropy) {
-//		return -1;
-//	}
-//	return 0;
-//}
+static int cmpwentropy(const void *a, const void *b) {
+	if ((*(struct word_entropy*)b).entropy > (*(struct word_entropy*)a).entropy) {
+		return 1;
+	}
+	if ((*(struct word_entropy*)b).entropy < (*(struct word_entropy*)a).entropy) {
+		return -1;
+	}
+	return 0;
+}
 
 //static size_t getmax(const size_t* tally, const size_t len) {
 //	size_t max = 0;
@@ -193,7 +195,28 @@ static char* word_w_max_entropy(wlist* list, wlist* ref_list) {
 }
 
 static char should_pick_alt_list(wlist* word_list, char optimise) {
-	return word_list -> length > 2 && (!optimise || word_list -> length < 50);
+	return word_list -> length > 2 /*g -> max_guesses - g -> guess_count*/ && (!optimise || word_list -> length < 50);
+}
+
+static void log_scores_debug(wlist* list, wlist* ref_list) {
+	struct word_entropy* entropies = malloc(sizeof(struct word_entropy) * list -> length);
+	size_t counter = 0;
+	wlword* j;
+	wlist_foreach(j, list) {
+		entropies[counter].word = j -> word;
+		entropies[counter].entropy = get_entropy(ref_list, j -> word);
+		counter++;
+	}
+	hsort(entropies, list -> length, sizeof(struct word_entropy), cmpwentropy);
+	counter = 0;
+	FILE* debug = fopen("debug.log", "wb");
+	wlist_foreach(j, list) {
+		fwrite(entropies[counter].word, sizeof(char), 5, debug);
+		fprintf(debug, " - %f\n", entropies[counter].entropy);
+		counter++;
+	}
+	fclose(debug);
+	free(entropies);
 }
 
 /*
@@ -205,41 +228,26 @@ static char* guess_by_information_entropy_base(gbucket* guess_board, wlist** wor
 	if (word_lists[0] -> length == 0) {
 		return NULL;
 	}
-	wlist* topick = should_pick_alt_list(word_lists[0], optimise)/*g -> max_guesses - g -> guess_count*/ ? alt_list : word_lists[0];
-	//size_t wlen = gbucket_getlastguess(g) -> length;
-//	struct word_entropy* entropies = malloc(sizeof(struct word_entropy) * topick -> length);
-	char** tmp_word_list = malloc(sizeof(char*) * word_lists[0] -> length);
-//	size_t counter = 0;
-//	wlword* j;
-//	wlist_foreach(j, topick) {
-//		entropies[counter].word = j -> word;
-//		entropies[counter].entropy = get_entropy(word_lists[0], j -> word);
-//		counter++;
-//	}
-	size_t counter = 0;
-	wlword* j;
-	wlist_foreach(j, word_lists[0]) {
-		tmp_word_list[counter] = j -> word;
-		counter++;
+	wlist* topick = should_pick_alt_list(word_lists[0], optimise) ? alt_list : word_lists[0];
+	if (show_word_list_to_user) {
+		if (log_scores) {
+			log_scores_debug(topick, word_lists[0]);
+		}
+		char** tmp_word_list = malloc(sizeof(char*) * word_lists[0] -> length);
+		size_t counter = 0;
+		wlword* j;
+		wlist_foreach(j, word_lists[0]) {
+			tmp_word_list[counter] = j -> word;
+			counter++;
+		}
+		hsort(tmp_word_list, word_lists[0] -> length, sizeof(char*), cmp_alpha_order);
+		counter = 0;
+		wlist_foreach(j, word_lists[0]) {
+			j -> word = tmp_word_list[counter];
+			counter++;
+		}
+		free(tmp_word_list);
 	}
-//	hsort(entropies, topick -> length, sizeof(struct word_entropy), cmpwentropy);
-	hsort(tmp_word_list, word_lists[0] -> length, sizeof(char*), cmp_alpha_order);
-//	counter = 0;
-//	wlist_foreach(j, topick) {
-//		j -> word = entropies[counter].word;
-//		counter++;
-//	}
-	counter = 0;
-	//FILE* debug = fopen("debug.log", "wb");
-	wlist_foreach(j, word_lists[0]) {
-		//fwrite(entropies[counter].word, sizeof(char), 5, debug);
-		//fprintf(debug, " - %f\n", entropies[counter].entropy);
-		j -> word = tmp_word_list[counter];
-		counter++;
-	}
-	//fclose(debug);
-	free(tmp_word_list);
-//	free(entropies);
 	return word_w_max_entropy(topick, word_lists[0]);
 }
 

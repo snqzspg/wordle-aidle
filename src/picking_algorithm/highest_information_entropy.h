@@ -6,6 +6,8 @@
 #include "../wordle_solver/solver.h"
 #include "algorithms.h"
 
+extern char log_scores;
+
 void information_theory_init(solver* slvr, algorithm* algo);
 void information_theory_hard_init(solver* slvr, algorithm* algo);
 void information_theory_more_vocab_init(solver* slvr, algorithm* algo);

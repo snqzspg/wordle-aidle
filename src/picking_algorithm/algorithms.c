@@ -143,7 +143,7 @@ void register_algorithms() {
 	column_popular_larger_vocab = register_algorithm(column_popular_cat, 1, "Column Popular (No answer dependence)", 1, guess_by_freq_cols, column_popular_larger_init, NULL, NULL);
 
 	information_theory_cat = algo_category_register(1, "Information Theory");
-	alcat_add_desc(information_theory_cat, "The algorithm that uses Information Theory to produce guess that maximizes the information obtained.\nThis algorithm can be slow, especially if it is allowed to choose non-hard mode words.\n(Information Theory algorithms have time complexities of O(n^2).)\n\n\"No answer dependence\" algorithms avoids dependency on official Wordle answers.");
+	alcat_add_desc(information_theory_cat, "The algorithm that uses Information Theory to produce guess that maximizes the information obtained.\nThis algorithm can be slow, especially if it is allowed to choose non-hard mode words.\n(Information Theory algorithms have time complexities of O(n^2).)\n\"No answer dependence\" algorithms avoids dependency on official Wordle answers.");
 
 	information_theory = register_algorithm(information_theory_cat, 2, "Information Theory (No hard mode)", 2, guess_by_information_entropy, information_theory_init, NULL, NULL);
 	information_theory_larger = register_algorithm(information_theory_cat, 3, "Information Theory (No hard mode) (No answer dependence)", 2, guess_by_information_entropy, information_theory_more_vocab_init, NULL, NULL);
@@ -211,8 +211,13 @@ int select_algo_by_cat_page(const alcat* category, void (*print_title_stuff)(con
 		print_wraped_linef("q - Back", 1, PGINDENT);
 		pgcg_set_note_colour();
 		if (category -> info != NULL) {
-			printf("\n%s\n\n", category -> info);
+			printf("\n%s\n", category -> info);
 		}
+		if (log_scores && category == information_theory_cat) {
+			pgcg_set_warning_colour();
+			printf("DEBUG MODE: Whenever the selected IT algorithm makes a suggestion, it logs the information scores for each possible suggestion into 'debug.txt'. Type 'itdebug' to turn off.\n");
+		}
+		printf("\n");
 		pgcg_reset_colour();
 		printf(" >> ");
 		free(input);
@@ -224,6 +229,10 @@ int select_algo_by_cat_page(const alcat* category, void (*print_title_stuff)(con
 		if (strcmp(input, "q") == 0) {
 			free(input);
 			return 1;
+		}
+		if (strcmp(input, "itdebug") == 0) {
+			log_scores = !log_scores;
+			continue;
 		}
 		size_t algo_idx = get_idx_from_option_key(input);
 		if (algo_idx < category -> registered_algo_count) {
@@ -266,6 +275,10 @@ int select_cat_page(void (*print_title_stuff)(), void (*print_algo_title_stuff)(
 		if (strcmp(input, "q") == 0) {
 			free(input);
 			return 1;
+		}
+		if (strcmp(input, "itdebug") == 0) {
+			log_scores = !log_scores;
+			continue;
 		}
 		size_t algo_idx = get_idx_from_option_key(input);
 		if (algo_idx < registered_algos_len) {

@@ -229,24 +229,6 @@ static char select_word_page(char* solnbuffer) {
 	return 0;
 }
 
-//static size_t num_digit(size_t n) {
-//	size_t d = 1;
-//	while (n >= 10){
-//		n /= 10;
-//		d++;
-//	}
-//	return d;
-//}
-
-//static void cpynumstr(char* buf, size_t n, size_t ndigits) {
-//	buf[ndigits] = '\0';
-//	while (ndigits) {
-//		buf[ndigits - 1] = (char)(48 + (n % 10));
-//		n /= 10;
-//		ndigits--;
-//	}
-//}
-
 /**
  * Delete using free()
  */

@@ -92,7 +92,6 @@ static void print_mode_title() {
 
 static void print_mode_title2(const char* cat_name) {
 	printf("\nTest Solver - Select algorithm\n");
-	printf("Category - %s\n", cat_name);
 }
 
 static void print_alg_info(int algo) {
@@ -222,7 +221,7 @@ void testing_screen(algorithm* algo, const char* starting_word) {
 	clear_console();
 	print_title_banner();
 	// Code smell: New registry system should perfume this.
-	printf("\nPerforming test on %s", algo -> name);
+	printf("\nPerforming test on %s\n", algo -> name);
 //	switch (algo) {
 //	case 1:
 //		printf("\nPerforming test on Popular in position\n");
@@ -337,6 +336,11 @@ static int log_summary(test_sess* session, char dark_mode, char high_contrast) {
 		return 1;
 	}
 	free(logname);
+	fwrite("\n", sizeof(char), 1, reslog);
+	fwrite("NOTE: Only the scores from the official Wordle on The New York Times can be considered as legitimate. This scores below does not count!\n", sizeof(char), 136, reslog);
+	fwrite("Site: https://www.nytimes.com/games/wordle/index.html (Surface)\n", sizeof(char), 64, reslog);
+	fwrite("Site: https://www.nytimesn7cgmftshazwhfgzm37qxb44r64ytbb2dj3x62d2lljsciiyd.onion/games/wordle/index.html (Onion)\n", sizeof(char), 113, reslog);
+	fwrite("\n", sizeof(char), 1, reslog);
 	for (size_t i = 0; i < session -> total_words; i++) {
 		gbucket_writeres_all_file(session -> boards[i], reslog, dark_mode, high_contrast);
 	}

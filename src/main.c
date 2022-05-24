@@ -16,22 +16,36 @@ char colour_blind_mode = 1;
 
 const char* name = "Wordle Aidle";
 const char* innername = "waidle";
-const char* version = "snapshot-202205240340";
+const char* version = "snapshot-202205250344";
+
+void cleanup() {
+	alcats_clear();
+	option_keys_cleanup();
+	cleanup_dict();
+}
 
 int main(void) {
+	int exitcode = 0;
 	pgcg_init_console_graphics();
 	if (clear_warning_thread()) {
 		return 0;
 	}
 	srand(time(NULL));
-	init_dict();
-	if (option_keys_init()) {
-		return 1;
+	exitcode = init_dict();
+	if (exitcode) {
+		return exitcode;
+	}
+	exitcode = option_keys_init();
+	if (exitcode) {
+		cleanup_dict();
+		return exitcode;
 	}
 	register_algorithms();
-	homepage_thread();
-	alcats_clear();
-	option_keys_cleanup();
-	cleanup_dict();
-	return 0;
+	exitcode = homepage_thread();
+	if (exitcode) {
+		cleanup();
+		return exitcode;
+	}
+	cleanup();
+	return exitcode;
 }

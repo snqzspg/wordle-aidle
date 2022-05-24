@@ -13,7 +13,7 @@ BEGIN
 			VALUE "LegalCopyright", "Snqzs' PG"
 			VALUE "OriginalFilename", "waidle.exe"
 			VALUE "ProductName", "Wordle Aidle"
-			VALUE "ProductVersion", "snapshot-202205240340"
+			VALUE "ProductVersion", "snapshot-202205250344"
 		END
 	END
 	BLOCK "VarFileInfo"

@@ -37,7 +37,7 @@ void random_pick_larger_init(solver* slvr, algorithm* algo) {
  * NOTE: Only the list at index 0 is displayed to the user
  */
 //char* guess_randomly(wlist* word_list, gbucket* g, wlist* alt_list) {
-char* guess_randomly(gbucket* guess_board, wlist** word_lists, size_t nword_lists) {
+char* guess_randomly(gbucket* guess_board, wlist** word_lists, size_t nword_lists, char show_word_list_to_user) {
 	if (word_lists[0] -> length == 0) {
 		return NULL;
 	}

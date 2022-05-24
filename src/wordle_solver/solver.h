@@ -29,11 +29,12 @@ typedef struct wordle_game_solver {
 	char* (*suggestion_algorithm) (gbucket* guess_board, wlist** word_lists, size_t nword_lists);
 	algorithm* suggest_algo;
 	char* suggested_word;
+	char display_word_list;
 } solver;
 
 //solver* solver_create(char* (*sugg_algo) (gbucket* guess_board, wlist** word_lists, size_t nword_lists), char include_all_valid_words);
 
-solver* solver_create(algorithm* sugg_algorithm);
+solver* solver_create(algorithm* sugg_algorithm, char show_word_list_to_user);
 
 /**
  * For alt_list:

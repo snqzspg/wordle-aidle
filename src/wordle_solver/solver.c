@@ -27,12 +27,13 @@ void solver_request_additional_wlist(solver* slvr) {
 //	return solver_create_w_alt_list(sugg_algo, include_all_valid_words, 0, 1, 0);
 //}
 
-solver* solver_create(algorithm* sugg_algorithm) {
+solver* solver_create(algorithm* sugg_algorithm, char show_word_list_to_user) {
 	solver* slvr = malloc(sizeof(solver));
 	slvr -> guesses = gbucket_create(wordle_max_guesses, NULL);
 	slvr -> status = STATUS_IN_PROGRESS;
 	slvr -> suggest_algo = sugg_algorithm;
 	slvr -> suggested_word = NULL;
+	slvr -> display_word_list = show_word_list_to_user;
 
 	size_t min_word_lists = sugg_algorithm -> min_word_lists;
 	slvr -> word_list_config_len = min_word_lists;
@@ -151,7 +152,7 @@ char open_to_guess(solver* s) {
 	return s -> status == STATUS_IN_PROGRESS;
 }
 
-static void filter_lists(solver* s, list_lrpair* guess, lcounter* min_letters, lcounter* exact_letters/*, cts_hmap* min_counts, cts_hmap* exact_counts*/) {
+static void filter_lists(solver* s, list_lrpair* guess, lcounter* min_letters, lcounter* exact_letters) {
 	struct word_list_config* list_config = s -> list_configs;
 	for (size_t i = 0; i < s -> word_list_config_len; i++) {
 		if (list_config[i].standard_filter) {
@@ -179,7 +180,7 @@ void enter_guess_result(solver* s, char* word, char* result) {
 	for (size_t i = 0; i < s -> word_list_config_len; i++) {
 		wordlists[i] = s -> list_configs[i].list;
 	}
-	s -> suggested_word = s -> suggest_algo -> suggest_word(s -> guesses, wordlists, s -> word_list_config_len);
+	s -> suggested_word = s -> suggest_algo -> suggest_word(s -> guesses, wordlists, s -> word_list_config_len, s -> display_word_list);
 	if (s -> suggested_word == NULL) {
 		s -> status = STATUS_LOST;
 	}

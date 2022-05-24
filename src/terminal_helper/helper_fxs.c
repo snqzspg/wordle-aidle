@@ -67,11 +67,8 @@ static char* create_fmttd_line(const char* fmt, va_list args) {
 	do {
 		buffer *= 2;
 		ret = realloc(ret, sizeof(char) * buffer);
-//		printf("DEBUG %lu\n", (long unsigned) buffer);
 		vsnprintf(ret, buffer, fmt, args);
-//		printf("DEBUG\n");
 		ret[buffer - 1] = '\0';
-//		printf("DEBUG %s\n", ret);
 		len = strlen(ret);
 		va_end(args);
 		va_copy(args, stash);

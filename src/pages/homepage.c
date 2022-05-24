@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "../about.h"
+#include "../picking_algorithm/highest_information_entropy.h"
 #include "../manual_input/manual_type.h"
 #include "../settings/colour_blind.h"
 #include "../terminal_helper/cons_graphics.h"
@@ -63,7 +64,7 @@ char clear_warning_thread() {
 	return print_clear_warning();
 }
 
-void homepage_thread() {
+int homepage_thread() {
 	while (1) {
 		print_homepage();
 		printf("\n >> ");
@@ -74,6 +75,10 @@ void homepage_thread() {
 		if (strcmp(input, "q") == 0) {
 			free(input);
 			break;
+		}
+		if (strcmp(input, "itdebug") == 0) {
+			log_scores = !log_scores;
+			continue;
 		}
 		if (strcmp(input, "1") == 0) {
 			free(input);
@@ -98,4 +103,5 @@ void homepage_thread() {
 		free(input);
 	}
 	clear_console();
+	return 0;
 }

@@ -3,6 +3,6 @@
 
 void print_title_banner();
 char clear_warning_thread();
-void homepage_thread();
+int homepage_thread();
 
 #endif // HOMEPAGE_H_INCLUDED

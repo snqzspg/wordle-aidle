@@ -9,7 +9,7 @@
 /**
  * Mutate the list by cumulatively filtering out the words from a pre-filted that does not match the patter given by wordle.
  */
-void filter_wlist_by_last_clue(wlist* l, list_lrpair* guess, lcounter* min_letters, lcounter* exact_letters /*, cts_hmap* min_counts, cts_hmap* max_counts*/);
+void filter_wlist_by_last_clue(wlist* l, list_lrpair* guess, lcounter* min_letters, lcounter* exact_letters);
 
 void print_possible_words(wlist* l, size_t cols, const char* prefix);
 

@@ -8,7 +8,9 @@
 #include "../settings/colour_blind.h"
 #include "../terminal_helper/cons_graphics.h"
 #include "../terminal_helper/helper_fxs.h"
+#include "../test_solve/tester.h"
 #include "../utilities/input-helper.h"
+#include "../utilities/obfuscator.h"
 #include "../utilities/str_util.h"
 #include "../wordle_simulator/simulate_game.h"
 
@@ -78,6 +80,21 @@ int homepage_thread() {
 		}
 		if (strcmp(input, "itdebug") == 0) {
 			log_scores = !log_scores;
+			continue;
+		}
+		if (str_islen(input, 6)) {
+			char beguin_testee[7];
+			strcpy(beguin_testee, input);
+			beguin_testee[6] = '\0';
+			obfs_str(beguin_testee, 1);
+			if (strcmp(beguin_testee, "8).1)%") == 0) {
+				spoiler_mode = !spoiler_mode;
+				continue;
+			}
+		}
+		if (sdbm_hash_str(input) == 1216353377) {
+			pause_console();
+			spoiler_mode = !spoiler_mode;
 			continue;
 		}
 		if (strcmp(input, "1") == 0) {

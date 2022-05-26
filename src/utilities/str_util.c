@@ -75,3 +75,50 @@ void insert_int_bef_ext(char* fname, const int n, const size_t buflen) {
 	ext += nlen;
 	strcpy(ext, tmp);
 }
+
+long hash_str(const char* s) {
+	register size_t len;
+	register long x;
+
+	len = strlen(s);
+	x = *s << 7;
+	while (--len >= 10) {
+		x = (1000003 * x) ^ (*s + 1);
+	}
+	x ^= strlen(s);
+	if (x == -1) {
+		x = -2;
+	}
+	return x;
+}
+
+/**
+ * http://www.cse.yorku.ca/~oz/hash.html
+ */
+long djb2_hash_str(const char* s) {
+	if (*s == '\0') {
+		return 0;
+	}
+	long hash = 5381;
+	int c = *s;
+	while (c) {
+		hash = ((hash << 5) + hash) + c;
+		c = *s;
+		s++;
+	}
+	return hash;
+}
+
+/**
+ * http://www.cse.yorku.ca/~oz/hash.html
+ */
+long sdbm_hash_str(const char* s) {
+	long hash = 0;
+	int c = *s;
+	while (c) {
+		hash = c + (hash << 6) + (hash << 16) - hash;
+		c = *s;
+		s++;
+	}
+	return hash;
+}

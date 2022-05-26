@@ -4,6 +4,7 @@
 
 #include "../error/print_error.h"
 #include "../terminal_helper/cons_graphics.h"
+#include "../utilities/str_util.h"
 #include "wbitem.h"
 
 /**
@@ -15,19 +16,20 @@
  * Stolen from python
  */
 long wbitem__make_hash(char *s) {
-	register size_t len;
-	register long x;
-
-	len = strlen(s);
-	x = *s << 7;
-	while (--len >= 10) {
-		x = (1000003 * x) ^ (*s + 1);
-	}
-	x ^= strlen(s);
-	if (x == -1) {
-		x = -2;
-	}
-	return x;
+	return hash_str(s);
+//	register size_t len;
+//	register long x;
+//
+//	len = strlen(s);
+//	x = *s << 7;
+//	while (--len >= 10) {
+//		x = (1000003 * x) ^ (*s + 1);
+//	}
+//	x ^= strlen(s);
+//	if (x == -1) {
+//		x = -2;
+//	}
+//	return x;
 }
 
 long wbitem_make_hash(const char *s) {

@@ -25,6 +25,8 @@
 #include "wlist_interface.h"
 #include "homepage.h"
 
+char spoiler_mode = 0;
+
 /**
  * Return 1 if exit
  */
@@ -527,7 +529,7 @@ int results_guesses_page(test_sess* session, size_t* current_page, const size_t 
 		fprintf(stderr, "ERROR: boards[%lu] is null.\n", (long unsigned) *current_page - 1);
 		pgcg_reset_colour_stderr();
 	} else {
-		gbucket_tessresprintall(session -> boards[*current_page - 1], 1, 0);
+		gbucket_tessresprintall(session -> boards[*current_page - 1], 1, spoiler_mode);
 	}
 	printf("\n");
 	if (!cpy_page_request(session, total_pages, current_page, invalid)) {

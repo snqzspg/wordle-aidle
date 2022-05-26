@@ -16,7 +16,7 @@ char colour_blind_mode = 1;
 
 const char* name = "Wordle Aidle";
 const char* innername = "waidle";
-const char* version = "snapshot-202205250344";
+const char* version = "snapshot-202205262312";
 
 void cleanup() {
 	alcats_clear();

@@ -8,6 +8,8 @@
 #include "../wordle/wlgame.h"
 #include "../wordle/word_list.h"
 
+extern char spoiler_mode;
+
 typedef struct guess_distribution {
 	unsigned int* counts;
 	size_t max_guesses;

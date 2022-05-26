@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../../utilities/str_util.h"
+
 #include "stts_item.h"
 
 /**
@@ -10,19 +12,20 @@
  */
 
 long stts_item_make_hash(const char* key) {
-	register size_t len;
-	register long x;
-
-	len = strlen(key);
-	x = *key << 7;
-	while (--len >= 10) {
-		x = (1000003 * x) ^ (*key + 1);
-	}
-	x ^= strlen(key);
-	if (x == -1) {
-		x = -2;
-	}
-	return x;
+	return hash_str(key);
+//	register size_t len;
+//	register long x;
+//
+//	len = strlen(key);
+//	x = *key << 7;
+//	while (--len >= 10) {
+//		x = (1000003 * x) ^ (*key + 1);
+//	}
+//	x ^= strlen(key);
+//	if (x == -1) {
+//		x = -2;
+//	}
+//	return x;
 }
 
 stts_item* stts_item_create(const char* key, const size_t val) {

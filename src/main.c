@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #include "pages/homepage.h"
@@ -13,10 +14,11 @@
 #include "picking_algorithm/algorithms.h"
 
 char colour_blind_mode = 1;
+char no_clear_mode = 0;
 
 const char* name = "Wordle Aidle";
 const char* innername = "waidle";
-const char* version = "snapshot-202205262312";
+const char* version = "snapshot-202205281316";
 
 void cleanup() {
 	alcats_clear();
@@ -24,12 +26,16 @@ void cleanup() {
 	cleanup_dict();
 }
 
-int main(void) {
-	int exitcode = 0;
+int main(int argc, char **argv) {
 	pgcg_init_console_graphics();
-	if (clear_warning_thread()) {
-		return 0;
+	if (argc > 1 && strcmp(argv[1], "--no_clear_console") == 0) {
+		no_clear_mode = 1;
+	} else {
+		if (clear_warning_thread(argv[0])) {
+			return 0;
+		}
 	}
+	int exitcode = 0;
 	srand(time(NULL));
 	exitcode = init_dict();
 	if (exitcode) {

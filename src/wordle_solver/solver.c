@@ -23,10 +23,6 @@ void solver_request_additional_wlist(solver* slvr) {
 	slvr -> word_list_config_len++;
 }
 
-//solver* solver_create(char* (*sugg_algo) (gbucket* guess_board, wlist** word_lists, size_t nword_lists), char include_all_valid_words) {
-//	return solver_create_w_alt_list(sugg_algo, include_all_valid_words, 0, 1, 0);
-//}
-
 solver* solver_create(algorithm* sugg_algorithm, char show_word_list_to_user) {
 	solver* slvr = malloc(sizeof(solver));
 	slvr -> guesses = gbucket_create(wordle_max_guesses, NULL);
@@ -50,97 +46,6 @@ solver* solver_create(algorithm* sugg_algorithm, char show_word_list_to_user) {
 	}
 
 	sugg_algorithm -> init(slvr, sugg_algorithm);
-	return slvr;
-}
-
-/**
- * For alt_list:
- *   0 - No alternate list
- *   1 - Wordle answers
- *   2 - Valid words
- * Note that only main list will be printed to the user.
- */
-solver* solver_create_w_alt_list(char* (*sugg_algo) (gbucket* guess_board, wlist** word_lists, size_t nword_lists), char include_all_valid_words, int alt_list, char filter_main_list, char filter_alt_list) {
-	solver* slvr = malloc(sizeof(solver));
-	slvr -> guesses = gbucket_create(wordle_max_guesses, NULL);
-	slvr -> status = STATUS_IN_PROGRESS;
-	slvr -> suggestion_algorithm = sugg_algo;
-	slvr -> suggested_word = NULL;
-
-	// New list format
-	// So far no evidence of memory leak
-	// Alt list segfault-ed
-	size_t min_word_lists = alt_list ? 2 : 1;
-	slvr -> word_list_config_len = min_word_lists;
-	slvr -> list_configs = malloc(sizeof(struct word_list_config) * min_word_lists);
-	if (slvr -> list_configs == NULL) {
-		gbucket_delete(slvr -> guesses);
-		free(slvr);
-		return NULL;
-	}
-//	size_t error_clear_count = 0;
-//	for (size_t i = 0; i < min_word_lists; i++) {
-//		slvr -> list_configs[i].list = wlist_create();
-//		if (slvr -> list_configs[i].list == NULL) {
-//			for (size_t j = 0; j < error_clear_count; j++) {
-//				wlist_delete(slvr -> list_configs[i].list);
-//			}
-//			free(slvr -> list_configs);
-//			gbucket_delete(slvr -> guesses);
-//			free(slvr);
-//			print_error_ln("ERROR solver not created: No more memory space available.");
-//			return NULL;
-//		}
-//		slvr -> list_configs[i].standard_filter = 1;
-//		error_clear_count++;
-//	}
-
-//	if (slvr -> suggest_algo -> init != NULL) {
-//		slvr -> suggest_algo -> init(s, slvr -> suggest_algo);
-//	}
-
-	wlist* main_list = wlist_create();
-	if (main_list == NULL) {
-		free(slvr -> list_configs);
-		gbucket_delete(slvr -> guesses);
-		free(slvr);
-		print_error_ln("ERROR solver not created: No more memory space available.");
-		return NULL;
-	}
-	wbitem* item;
-	wbank_foreachitem(item, hcded_dict) {
-		wlist_append(main_list, item -> value);
-	}
-	if (include_all_valid_words) {
-		wbank_foreachitem(item, valid_words) {
-			wlist_append(main_list, item -> value);
-		}
-	}
-	slvr -> list_configs[0].standard_filter = filter_main_list;
-	slvr -> list_configs[0].list = main_list;
-
-	wlist* alt_list_ = NULL;
-	if (alt_list) {
-		alt_list_ = wlist_create();
-		if (alt_list_ == NULL) {
-			free(main_list);
-			free(slvr -> list_configs);
-			gbucket_delete(slvr -> guesses);
-			free(slvr);
-			print_error_ln("ERROR solver not created: No more memory space available.");
-			return NULL;
-		}
-		wbank_foreachitem(item, hcded_dict) {
-			wlist_append(alt_list_, item -> value);
-		}
-		if (alt_list == 2) {
-			wbank_foreachitem(item, valid_words) {
-				wlist_append(alt_list_, item -> value);
-			}
-		}
-		slvr -> list_configs[1].standard_filter = filter_alt_list;
-		slvr -> list_configs[1].list = alt_list_;
-	}
 	return slvr;
 }
 

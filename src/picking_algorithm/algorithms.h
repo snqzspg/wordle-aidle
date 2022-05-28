@@ -40,8 +40,6 @@ void alcats_clear();
 
 int select_cat_page(void (*print_title_stuff)(), void (*print_algo_title_stuff)(const char* cat_name), char* cat_select_prefix, const char* algo_select_prefix, algorithm** selected_algo, void (*print_algo_add_info)(int algo));
 
-//int select_algo_page(void (*print_title_stuff)(), int* algo, void (*print_algo_add_info)(int algo));
-
 extern alcat* column_popular_cat;
 extern alcat* information_theory_cat;
 extern alcat* matt_dodge_cat;
@@ -61,7 +59,7 @@ extern algorithm* matt_dodge_hybrid_hard;
 extern algorithm* matt_dodge_hybrid_hard_larger;
 extern algorithm* random_pick;
 extern algorithm* random_pick_larger;
-
-//extern const char algorithm_names[12][67];
+extern algorithm* random_pick_ignore_clues;
+extern algorithm* random_pick_ignore_clues_larger;
 
 #endif // ALGORITHMS_H_INCLUDED

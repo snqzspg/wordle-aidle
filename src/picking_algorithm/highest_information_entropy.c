@@ -161,16 +161,6 @@ static int cmpwentropy(const void *a, const void *b) {
 	return 0;
 }
 
-//static size_t getmax(const size_t* tally, const size_t len) {
-//	size_t max = 0;
-//	for (size_t i = 0; i < len; i++) {
-//		if (tally[i] > max) {
-//			max = tally[i];
-//		}
-//	}
-//	return max;
-//}
-
 /*
  * This is the bulk of the thinking work.
  * In future, "hard drive" memoisation can be developed to speed this process up.
@@ -222,7 +212,6 @@ static void log_scores_debug(wlist* list, wlist* ref_list) {
 /*
  * NOTE: Only the list at index 0 is displayed to the user
  */
-//static char* guess_by_information_entropy_base(wlist* word_list, gbucket* g, wlist* alt_list, char optimise) {
 static char* guess_by_information_entropy_base(gbucket* guess_board, wlist** word_lists, size_t nword_lists, char optimise, char show_word_list_to_user) {
 	wlist* alt_list = nword_lists == 2 ? word_lists[1] : word_lists[0];
 	if (word_lists[0] -> length == 0) {
@@ -251,7 +240,6 @@ static char* guess_by_information_entropy_base(gbucket* guess_board, wlist** wor
 	return word_w_max_entropy(topick, word_lists[0]);
 }
 
-//char* guess_by_information_entropy(wlist* l, gbucket* g, wlist* alt_list) {
 char* guess_by_information_entropy(gbucket* guess_board, wlist** word_lists, size_t nword_lists, char show_word_list_to_user) {
 	return guess_by_information_entropy_base(guess_board, word_lists, nword_lists, 0, show_word_list_to_user);
 }
@@ -261,7 +249,6 @@ char* guess_by_information_entropy(gbucket* guess_board, wlist** word_lists, siz
  * Credit:
  *     https://betterprogramming.pub/building-a-wordle-bot-in-under-100-lines-of-python-9b980539defb
  */
-//char* guess_by_information_entropy_optimised_level_1(wlist* l, gbucket* g, wlist* alt_list) {
 char* guess_by_information_entropy_optimised_level_1(gbucket* guess_board, wlist** word_lists, size_t nword_lists, char show_word_list_to_user) {
 	return guess_by_information_entropy_base(guess_board, word_lists, nword_lists, 1, show_word_list_to_user);
 }

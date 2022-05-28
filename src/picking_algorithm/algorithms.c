@@ -134,6 +134,8 @@ algorithm* matt_dodge_hybrid_hard;
 algorithm* matt_dodge_hybrid_hard_larger;
 algorithm* random_pick;
 algorithm* random_pick_larger;
+algorithm* random_pick_ignore_clues;
+algorithm* random_pick_ignore_clues_larger;
 
 void register_algorithms() {
 	column_popular_cat = algo_category_register(0, "Column Popular");
@@ -165,6 +167,8 @@ void register_algorithms() {
 
 	random_pick = register_algorithm(random_pick_cat, 12, "Random Pick", 2, guess_randomly, random_pick_init, NULL, NULL);
 	random_pick_larger = register_algorithm(random_pick_cat, 13, "Random Pick (No answer dependence)", 2, guess_randomly, random_pick_larger_init, NULL, NULL);
+	random_pick_ignore_clues = register_algorithm(random_pick_cat, 14, "Random Pick (Ignore clues)", 2, guess_randomly, random_pick_ignore_clues_init, NULL, NULL);
+	random_pick_ignore_clues_larger = register_algorithm(random_pick_cat, 15, "Random Pick (Ignore clues) (No answer dependence)", 2, guess_randomly, random_pick_ignore_clues_larger_init, NULL, NULL);
 }
 
 void algorithm_delete(algorithm* x) {
@@ -293,133 +297,3 @@ int select_cat_page(void (*print_title_stuff)(), void (*print_algo_title_stuff)(
 
 	return 0;
 }
-
-/**
- * A temporary array to store the names of the variables in order.
- * Once the new algorithm registry system is ready, this will be removed.
- */
-//const char algorithm_names[12][67] = {
-//	"Popular in position",
-//	"Popular in position (Larger vocabulary)",
-//	"Information Theory (Hard mode)",
-//	"Information Theory (Hard mode) (Larger vocabulary)",
-//	"Information Theory (No hard mode)",
-//	"Information Theory (No hard mode) (Resilient)",
-//	"Information Theory (No hard mode) (Slightly Optimised)",
-//	"Information Theory (No hard mode) (Resilient) (Slightly Optimised)",
-//	"Matt Dodge Hybrid (No hard mode)",
-//	"Matt Dodge Hybrid (No hard mode) (Resilient)",
-//	"Random guess",
-//	"Random guess (Larger vocabulary)"
-//};
-
-/**
- * Returns 1 if asked to cancel.
- * The selected algorithm will be copied into the dereferenced algo variable.
- */
-//int select_algo_page(void (*print_title_stuff)(), int* algo, void (*print_algo_add_info)(int algo)) {
-//	char* input = NULL;
-//	while (1) {
-//		clear_console();
-//		if (print_title_stuff != NULL) print_title_stuff();
-//		printf("\n");
-//		print_wraped_linef("Choose an Algorithm by typing the corresponding number:", 0, PGINDENT);
-//		print_wraped_linef("1 - Popular in position", 1, PGINDENT);
-//		if (print_algo_add_info != NULL) print_algo_add_info(0);
-//		print_wraped_linef("2 - Popular in position (Larger vocabulary)", 1, PGINDENT);
-//		if (print_algo_add_info != NULL) print_algo_add_info(1);
-//		print_wraped_linef("3 - Information Theory (Hard mode)", 1, PGINDENT);
-//		if (print_algo_add_info != NULL) print_algo_add_info(2);
-//		print_wraped_linef("4 - Information Theory (Hard mode) (Larger vocabulary)", 1, PGINDENT);
-//		if (print_algo_add_info != NULL) print_algo_add_info(3);
-//		print_wraped_linef("w - Information Theory (No hard mode)", 1, PGINDENT);
-//		if (print_algo_add_info != NULL) print_algo_add_info(4);
-//		print_wraped_linef("e - Information Theory (No hard mode) (Resilient)", 1, PGINDENT);
-//		if (print_algo_add_info != NULL) print_algo_add_info(5);
-//		print_wraped_linef("r - Information Theory (No hard mode) (Slightly Optimised)", 1, PGINDENT);
-//		if (print_algo_add_info != NULL) print_algo_add_info(6);
-//		print_wraped_linef("a - Information Theory (No hard mode) (Resilient) (Slightly Optimised)", 1, PGINDENT);
-//		if (print_algo_add_info != NULL) print_algo_add_info(7);
-//		print_wraped_linef("s - Matt Dodge Hybrid (No hard mode)", 1, PGINDENT);
-//		if (print_algo_add_info != NULL) print_algo_add_info(8);
-//		print_wraped_linef("d - Matt Dodge Hybrid (No hard mode) (Resilient)", 1, PGINDENT);
-//		if (print_algo_add_info != NULL) print_algo_add_info(9);
-//		print_wraped_linef("f - Random guess", 1, PGINDENT);
-//		if (print_algo_add_info != NULL) print_algo_add_info(10);
-//		print_wraped_linef("z - Random guess (Larger vocabulary)", 1, PGINDENT);
-//		if (print_algo_add_info != NULL) print_algo_add_info(11);
-//		print_wraped_linef("q - Exit\n", 1, PGINDENT);
-//		printf(" >> ");
-//		free(input);
-//		input = ask_user();
-//		lowercase(input);
-//		if (input == NULL) {
-//			continue;
-//		}
-//		if (strcmp(input, "q") == 0) {
-//			free(input);
-//			return 1;
-//		}
-//		if (strcmp(input, "1") == 0) {
-//			*algo = 0;
-//			free(input);
-//			return 0;
-//		}
-//		if (strcmp(input, "2") == 0) {
-//			*algo = 1;
-//			free(input);
-//			return 0;
-//		}
-//		if (strcmp(input, "3") == 0) {
-//			*algo = 2;
-//			free(input);
-//			return 0;
-//		}
-//		if (strcmp(input, "4") == 0) {
-//			*algo = 3;
-//			free(input);
-//			return 0;
-//		}
-//		if (strcmp(input, "w") == 0) {
-//			*algo = 4;
-//			free(input);
-//			return 0;
-//		}
-//		if (strcmp(input, "e") == 0) {
-//			*algo = 5;
-//			free(input);
-//			return 0;
-//		}
-//		if (strcmp(input, "r") == 0) {
-//			*algo = 6;
-//			free(input);
-//			return 0;
-//		}
-//		if (strcmp(input, "a") == 0) {
-//			*algo = 7;
-//			free(input);
-//			return 0;
-//		}
-//		if (strcmp(input, "s") == 0) {
-//			*algo = 8;
-//			free(input);
-//			return 0;
-//		}
-//		if (strcmp(input, "d") == 0) {
-//			*algo = 9;
-//			free(input);
-//			return 0;
-//		}
-//		if (strcmp(input, "f") == 0) {
-//			*algo = 10;
-//			free(input);
-//			return 0;
-//		}
-//		if (strcmp(input, "z") == 0) {
-//			*algo = 11;
-//			free(input);
-//			return 0;
-//		}
-//	}
-//	return 0;
-//}

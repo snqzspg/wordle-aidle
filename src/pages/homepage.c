@@ -6,15 +6,18 @@
 #include "../picking_algorithm/highest_information_entropy.h"
 #include "../manual_input/manual_type.h"
 #include "../settings/colour_blind.h"
+#include "../settings/settings.h"
 #include "../terminal_helper/cons_graphics.h"
 #include "../terminal_helper/helper_fxs.h"
 #include "../test_solve/tester.h"
+#include "../utilities/hash_util.h"
 #include "../utilities/input-helper.h"
 #include "../utilities/obfuscator.h"
 #include "../utilities/str_util.h"
 #include "../wordle_simulator/simulate_game.h"
 
 #include "tester.h"
+#include "usage_info.h"
 
 static const char banner_lines[5][66] = {
 	" _  _   __  ____  ____  __    ____     __   __  ____  __    ____ ",
@@ -33,15 +36,25 @@ void print_title_banner() {
 /**
  * Returns 1 if should exit, 0 otherwise.
  */
-char print_clear_warning() {
+static char print_clear_warning(const char* arg0) {
 	printf("\nWordle Aidle\n");
 	printf("Version: %s\n\n", version);
 	printf("WARNING: This application will clear your previous terminal entries!\n");
-	printf("(Provided that your terminal supports it.)\n");
-	printf("Enter 'c' to continue or leave blank to quit: ");
+	printf("(If you proceed in default mode, provided that your terminal supports it.)\n\n");
+	print_usage_info(arg0);
+	printf("\nEnter 'c' to continue in default mode,\n'nc' for no console clearing\nor leave blank to quit: ");
 	char* input = ask_user();
 	lowercase(input);
-	if (input != NULL && strcmp(input, "c") == 0) {
+	if (input == NULL) {
+		free(input);
+		return 1;
+	}
+	if (strcmp(input, "c") == 0) {
+		free(input);
+		return 0;
+	}
+	if (strcmp(input, "nc") == 0) {
+		no_clear_mode = 1;
 		free(input);
 		return 0;
 	}
@@ -62,8 +75,8 @@ void print_homepage() {
 	printf(" q - Quit\n");
 }
 
-char clear_warning_thread() {
-	return print_clear_warning();
+char clear_warning_thread(const char* arg0) {
+	return print_clear_warning(arg0);
 }
 
 int homepage_thread() {
@@ -92,8 +105,7 @@ int homepage_thread() {
 				continue;
 			}
 		}
-		if (sdbm_hash_str(input) == 1216353377) {
-			pause_console();
+		if (verify_dword_hash(sdbm_hash_str(input), (long) 0x50821cf3)) {
 			spoiler_mode = !spoiler_mode;
 			continue;
 		}

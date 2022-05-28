@@ -248,65 +248,11 @@ static char subsequent_entries(solver* slver) {
 }
 
 void option1_thread() {
-//	alcat* category = NULL;
 	algorithm* algo = NULL;
 	if (select_cat_page(print_cat_sel_mode_title, print_alg_sel_mode_title, "", "", &algo, NULL)) {
 		return;
 	}
-//	if (select_algo_by_cat_page(category, print_mode_title, "", "", &algo, NULL)) {
-//		return;
-//	}
 	solver* w_solver = solver_create(algo, 1);
-//	int alg = 0;
-//	if (select_algo_page(print_mode_title, &alg, print_algo_info)) {
-//		return;
-//	}
-//	solver* w_solver = NULL;
-//	switch (alg) {
-//	case 11:
-////		w_solver = solver_create(guess_randomly, 1);
-//		w_solver = solver_create(random_pick_larger);
-//		break;
-//	case 10:
-////		w_solver = solver_create(guess_randomly, 0);
-//		w_solver = solver_create(random_pick);
-//		break;
-//	case 9:
-////		w_solver = solver_create_w_alt_list(guess_by_information_freq_hybrid, 1, 2, 1, 0);
-//		w_solver = solver_create(matt_dodge_hybrid_larger);
-//		break;
-//	case 8:
-////		w_solver = solver_create_w_alt_list(guess_by_information_freq_hybrid, 0, 2, 1, 0);
-//		w_solver = solver_create(matt_dodge_hybrid);
-//		break;
-//	case 7:
-////		w_solver = solver_create_w_alt_list(guess_by_information_entropy_optimised_level_1, 1, 2, 1, 0);
-//		w_solver = solver_create(information_theory_slightly_optimised_larger);
-//		break;
-//	case 6:
-////		w_solver = solver_create_w_alt_list(guess_by_information_entropy_optimised_level_1, 0, 2, 1, 0);
-//		w_solver = solver_create(information_theory_slightly_optimised);
-//		break;
-//	case 5:
-////		w_solver = solver_create_w_alt_list(guess_by_information_entropy, 1, 2, 1, 0);
-//		w_solver = solver_create(information_theory_larger);
-//		break;
-//	case 4:
-////		w_solver = solver_create_w_alt_list(guess_by_information_entropy, 0, 2, 1, 0);
-//		w_solver = solver_create(information_theory);
-//		break;
-//	case 3:
-////		w_solver = solver_create_w_alt_list(guess_by_information_entropy, 1, 2, 1, 1);
-//		w_solver = solver_create(information_theory_hard_larger);
-//		break;
-//	case 2:
-////		w_solver = solver_create_w_alt_list(guess_by_information_entropy, 0, 2, 1, 1);
-//		w_solver = solver_create(information_theory_hard);
-//		break;
-//	default:
-////		w_solver = solver_create(guess_by_freq_cols, alg);
-//		w_solver = solver_create(alg == 1 ? column_popular_larger_vocab : column_popular);
-//	}
 	if (w_solver == NULL) {
 		print_error_ln("Can't start game: not enough memory.");
 		pause_console();

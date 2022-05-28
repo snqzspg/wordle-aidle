@@ -6,7 +6,7 @@
 #include "../terminal_helper/cons_graphics.h"
 #include "input-helper.h"
 
-char have_newline(char* str, size_t len) {
+static char have_newline(char* str, size_t len) {
 	while (len) {
 		len--;
 		if (str[len] == 10) {
@@ -16,11 +16,12 @@ char have_newline(char* str, size_t len) {
 	return 0;
 }
 
-void clear_newline(char* str, size_t len) {
+static void cut_str_at_newline(char* str, size_t len) {
 	while (len) {
 		len--;
 		if (str[len] == 10) {
 			str[len] = 0;
+			break;
 		}
 	}
 }
@@ -39,6 +40,8 @@ char *ask_user() {
 	}
 	do {
 		if (fgets(tmp, blockl + 1, stdin) == NULL) {
+		// https://www.tutorialspoint.com/c_standard_library/c_function_fgets.htm
+		// Stops when either (n-1) characters are read, the newline character is read, or the end-of-file is reached, whichever comes first.
 			free(buf);
 			return NULL;
 		}
@@ -63,7 +66,7 @@ char *ask_user() {
 		}
 		count++;
 	} while (!have_newline(tmp, blockl));
-	clear_newline(buf, l);
+	cut_str_at_newline(buf, l);
 	if (*buf == 0) {
 		free(buf);
 		return NULL;

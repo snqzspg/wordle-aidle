@@ -18,7 +18,7 @@ char no_clear_mode = 0;
 
 const char* name = "Wordle Aidle";
 const char* innername = "waidle";
-const char* version = "snapshot-202205281316";
+const char* version = "snapshot-202205281705";
 
 void cleanup() {
 	alcats_clear();

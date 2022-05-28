@@ -59,7 +59,7 @@ void msort_w_aux(void *list, void *aux_array, size_t nitems, size_t size, int (*
 void msort(void* list, size_t nitems, size_t size, int (*compr)(const void*, const void*)) {
 	void* aux_array = malloc(nitems * size);
 	if (aux_array == NULL) {
-		print_error_ln("Error mergesort could not find enough space for a auxiliary array.");
+		print_error_ln("Error mergesort could not find enough space for an auxiliary array.");
 		return;
 	}
 	msort_w_aux(list, aux_array, nitems, size, compr);

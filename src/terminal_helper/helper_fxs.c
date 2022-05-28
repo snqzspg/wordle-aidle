@@ -3,15 +3,16 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../settings/settings.h"
 #include "../utilities/input-helper.h"
 #include "cons_graphics.h"
 #include "helper_fxs.h"
 
 void clear_console() {
 	#ifdef _WIN32
-	if (system("cls") == -1) printf("\n\n------------------------------\n\n");
+	if (no_clear_mode || system("cls") == -1) printf("\n\n------------------------------\n\n");
 	#elif defined (__unix__) || (defined (__APPLE__) && defined (__MACH__))
-	if (system("clear") == -1) printf("\n\n------------------------------\n\n");
+	if (no_clear_mode || system("clear") == -1) printf("\n\n------------------------------\n\n");
 	#else
 	printf("\n\n------------------------------\n\n");
 	#endif // _WIN32

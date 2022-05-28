@@ -3,6 +3,7 @@
 #include <string.h>
 #include <time.h>
 
+#include "file_util.h"
 #include "int_util.h"
 #include "str_util.h"
 
@@ -41,4 +42,40 @@ char* create_log_filename(const char* prefix) {
 	ret[pflen] = '-';
 	strftime(ret + pflen + 1, year_len + 20, "%Y-%m-%d_%H.%M.%S.log", timeinfo);
 	return ret;
+}
+
+char get_file_seperator() {
+	#ifdef _WIN32
+	return '\\';
+	#else
+	return '/';
+	#endif // _WIN32
+}
+
+char* find_file_sep(const char* path) {
+	#ifdef _WIN32
+	char* firstSlash = strchr(path, '/');
+	char* firstBSlash = strchr(path, '\\');
+	return firstSlash < firstBSlash ? firstSlash : firstBSlash;
+	#else
+	return strchr(path, '/');
+	#endif // _WIN32
+}
+
+char* find_last_file_sep(const char* path) {
+	#ifdef _WIN32
+	char* firstSlash = strrchr(path, '/');
+	char* firstBSlash = strrchr(path, '\\');
+	return firstSlash > firstBSlash ? firstSlash : firstBSlash;
+	#else
+	return strrchr(path, '/');
+	#endif // _WIN32
+}
+
+char* get_path_leaf(const char* path) {
+	char* lastSep = find_last_file_sep(path);
+	if (lastSep == NULL) {
+		return (char*) path;
+	}
+	return lastSep + 1;
 }

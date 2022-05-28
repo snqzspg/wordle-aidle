@@ -1,4 +1,5 @@
 v0.4.0
+ - Added two new random pick algorithms; these just pick a random five-letter-word for each suggestion with no regards to the given clues.
  - Suggesting algorithms are now grouped into categories for a cleaner option selection experience.
  - Make logs less annoying.
  - Used a new counter system.
@@ -6,6 +7,8 @@ v0.4.0
  - Made several debugging features available without modifying the source code.
  - Included a debugging feature for Informational theory solvers which allows it to log the scores for all possible suggestions into 'debug.txt'.
  - Spoiler mode is accessible via two secret codes (only require one to activate). One is stored as obfuscated text and the other is stored as a hash.
+ - Application now accepts an argument, '--no_clear_console', which will prevent the application from clearing your terminal history.
+ - Before the application clears your terminal history, it will now provide an option for it to not clear your history.
 
 v0.3.4
  - Updated the word list in this app as Wordle had its word list changed.

@@ -54,19 +54,6 @@ void insert_int_bef_ext(char* fname, const int n, const size_t buflen) {
 
 long hash_str(const char* s) {
 	return hash_bytes(s, strlen(s) * sizeof(char));
-//	register size_t len;
-//	register long x;
-//
-//	len = strlen(s);
-//	x = *s << 7;
-//	while (--len >= 10) {
-//		x = (1000003 * x) ^ (*s + 1);
-//	}
-//	x ^= strlen(s);
-//	if (x == -1) {
-//		x = -2;
-//	}
-//	return x;
 }
 
 /**
@@ -74,17 +61,6 @@ long hash_str(const char* s) {
  */
 long djb2_hash_str(const char* s) {
 	return djb2_hash_bytes(s, strlen(s) * sizeof(char));
-//	if (*s == '\0') {
-//		return 0;
-//	}
-//	long hash = 5381;
-//	int c = *s;
-//	while (c) {
-//		hash = ((hash << 5) + hash) + c;
-//		c = *s;
-//		s++;
-//	}
-//	return hash;
 }
 
 /**
@@ -92,12 +68,4 @@ long djb2_hash_str(const char* s) {
  */
 long sdbm_hash_str(const char* s) {
 	return sdbm_hash_bytes(s, strlen(s) * sizeof(char));
-//	long hash = 0;
-//	int c = *s;
-//	while (c) {
-//		hash = c + (hash << 6) + (hash << 16) - hash;
-//		c = *s;
-//		s++;
-//	}
-//	return hash;
 }

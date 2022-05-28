@@ -65,6 +65,9 @@ static unsigned int guess_dist_mode_count(guess_dist* g) {
 			mode = g -> counts[i];
 		}
 	}
+	if (g -> fails > mode) {
+		mode = g -> fails;
+	}
 	return mode;
 }
 
@@ -334,7 +337,6 @@ size_t test_sess_last_unsuccessful(test_sess* t, size_t start, size_t fallback) 
 	return fallback;
 }
 
-//test_sess* test_sess_create(wlist* list_to_test, const char* algo_name, const char* starting_word, void* (*create_slvr) (test_sess* session), char (*slvr_open) (void* s, test_sess* session), const char* (*slvr_suggest) (void* s, test_sess* session), void (*slvr_receive_result) (void* s, test_sess* session, char* word, char* result), void (*delete_slvr) (void* s, test_sess* session)) {
 test_sess* test_sess_create(wlist* list_to_test, algorithm* algo_name, const char* starting_word, void* (*create_slvr) (algorithm* algo, test_sess* session), char (*slvr_open) (void* s, test_sess* session), const char* (*slvr_suggest) (void* s, test_sess* session), void (*slvr_receive_result) (void* s, test_sess* session, char* word, char* result), void (*delete_slvr) (void* s, test_sess* session)) {
 	test_sess* newsession = malloc(sizeof(test_sess));
 	if (newsession == NULL) {

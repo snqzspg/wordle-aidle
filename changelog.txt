@@ -1,5 +1,6 @@
 v0.4.0
  - Added two new random pick algorithms; these just pick a random five-letter-word for each suggestion with no regards to the given clues.
+ - Added an experimental "Anti-absurdle" algorithm, which suggests words based on the lowest number of possible answers in the pattern that has the most matching words for each possible suggestion.
  - Suggesting algorithms are now grouped into categories for a cleaner option selection experience.
  - Make logs less annoying.
  - Used a new counter system.
@@ -42,4 +43,3 @@ v0.3.0
  - Solver also includes an imitated Wordle game, as well as a algorithm tester.
  - Includes 12947 words from the official Wordle game. 2309 of them are answers. Words are currently hard coded in the program
  - Also includes 5837 extra words not in Wordle's word list.
- 

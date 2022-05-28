@@ -54,7 +54,6 @@ int test_sess_log_result(test_sess* t, const char* logname);
 void test_sess_print_result(test_sess* t);
 size_t test_sess_first_unsuccessful(test_sess* t, size_t start, size_t fallback);
 size_t test_sess_last_unsuccessful(test_sess* t, size_t start, size_t fallback);
-//test_sess* test_sess_create(wlist* list_to_test, const char* algo_name, const char* starting_word, void* (*create_slvr) (test_sess* sessconst algorithm* algo, ion), char (*slvr_open) (void* s, test_sess* session), const char* (*slvr_suggest) (void* s, test_sess* session), void (*slvr_receive_result) (void* s, test_sess* session, char* word, char* result), void (*delete_slvr) (void* s, test_sess* session));
 test_sess* test_sess_create(wlist* list_to_test, algorithm* algo_name, const char* starting_word, void* (*create_slvr) (algorithm* algo, test_sess* session), char (*slvr_open) (void* s, test_sess* session), const char* (*slvr_suggest) (void* s, test_sess* session), void (*slvr_receive_result) (void* s, test_sess* session, char* word, char* result), void (*delete_slvr) (void* s, test_sess* session));
 void test_sess_clear_boards(test_sess* t);
 void test_sess_delete(test_sess* t);

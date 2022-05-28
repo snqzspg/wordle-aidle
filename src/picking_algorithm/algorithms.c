@@ -10,6 +10,7 @@
 #include "../utilities/str_util.h"
 
 #include "algorithms.h"
+#include "anti_absurdle.h"
 #include "highest_information_entropy.h"
 #include "hybrid.h"
 #include "most-frequent-in-column.h"
@@ -128,6 +129,7 @@ algorithm* information_theory_slightly_optimised;
 algorithm* information_theory_slightly_optimised_larger;
 algorithm* information_theory_hard;
 algorithm* information_theory_hard_larger;
+algorithm* anti_absurdle;
 algorithm* matt_dodge_hybrid;
 algorithm* matt_dodge_hybrid_larger;
 algorithm* matt_dodge_hybrid_hard;
@@ -153,22 +155,23 @@ void register_algorithms() {
 	information_theory_slightly_optimised_larger = register_algorithm(information_theory_cat, 5, "Information Theory (No hard mode) (No answer dependence) (Slightly Optimised)", 2, guess_by_information_entropy_optimised_level_1, information_theory_more_vocab_init, NULL, NULL);
 	information_theory_hard = register_algorithm(information_theory_cat, 6, "Information Theory (Hard mode)", 2, guess_by_information_entropy, information_theory_hard_init, NULL, NULL);
 	information_theory_hard_larger = register_algorithm(information_theory_cat, 7, "Information Theory (Hard mode) (No answer dependence)", 2, guess_by_information_entropy, information_theory_more_vocab_hard_init, NULL, NULL);
+	anti_absurdle = register_algorithm(information_theory_cat, 8, "Anti-absurdle (No hard mode) (Experimental)", 2, guess_using_anti_absurdle, anti_absurdle_init, NULL, NULL);
 
 	matt_dodge_cat = algo_category_register(2, "Matt Dodge Hybrid");
 	alcat_add_desc(matt_dodge_cat, "Inspired by an article by Matt Dodge, this mixes the Column Popular and Information Theory algorithms in order to make the suggesting process more efficient.\n\n\"No answer dependence\" algorithms avoids dependency on official Wordle answers.");
 
-	matt_dodge_hybrid = register_algorithm(matt_dodge_cat, 8, "Matt Dodge Hybrid (No hard mode)", 2, guess_by_information_freq_hybrid, matt_dodge_init, NULL, NULL);
-	matt_dodge_hybrid_larger = register_algorithm(matt_dodge_cat, 9, "Matt Dodge Hybrid (No hard mode) (No answer dependence)", 2, guess_by_information_freq_hybrid, matt_dodge_larger_init, NULL, NULL);
-	matt_dodge_hybrid_hard = register_algorithm(matt_dodge_cat, 10, "Matt Dodge Hybrid (Hard mode)", 2, guess_by_information_freq_hybrid, matt_dodge_hard_init, NULL, NULL);
-	matt_dodge_hybrid_hard_larger = register_algorithm(matt_dodge_cat, 11, "Matt Dodge Hybrid (Hard mode) (No answer dependence)", 2, guess_by_information_freq_hybrid, matt_dodge_hard_larger_init, NULL, NULL);
+	matt_dodge_hybrid = register_algorithm(matt_dodge_cat, 9, "Matt Dodge Hybrid (No hard mode)", 2, guess_by_information_freq_hybrid, matt_dodge_init, NULL, NULL);
+	matt_dodge_hybrid_larger = register_algorithm(matt_dodge_cat, 10, "Matt Dodge Hybrid (No hard mode) (No answer dependence)", 2, guess_by_information_freq_hybrid, matt_dodge_larger_init, NULL, NULL);
+	matt_dodge_hybrid_hard = register_algorithm(matt_dodge_cat, 11, "Matt Dodge Hybrid (Hard mode)", 2, guess_by_information_freq_hybrid, matt_dodge_hard_init, NULL, NULL);
+	matt_dodge_hybrid_hard_larger = register_algorithm(matt_dodge_cat, 12, "Matt Dodge Hybrid (Hard mode) (No answer dependence)", 2, guess_by_information_freq_hybrid, matt_dodge_hard_larger_init, NULL, NULL);
 
 	random_pick_cat = algo_category_register(3, "Random Guess");
 	alcat_add_desc(random_pick_cat, "Self-explanatory\n\n\"No answer dependence\" algorithms avoids dependency on official Wordle answers.");
 
-	random_pick = register_algorithm(random_pick_cat, 12, "Random Pick", 2, guess_randomly, random_pick_init, NULL, NULL);
-	random_pick_larger = register_algorithm(random_pick_cat, 13, "Random Pick (No answer dependence)", 2, guess_randomly, random_pick_larger_init, NULL, NULL);
-	random_pick_ignore_clues = register_algorithm(random_pick_cat, 14, "Random Pick (Ignore clues)", 2, guess_randomly, random_pick_ignore_clues_init, NULL, NULL);
-	random_pick_ignore_clues_larger = register_algorithm(random_pick_cat, 15, "Random Pick (Ignore clues) (No answer dependence)", 2, guess_randomly, random_pick_ignore_clues_larger_init, NULL, NULL);
+	random_pick = register_algorithm(random_pick_cat, 13, "Random Pick", 2, guess_randomly, random_pick_init, NULL, NULL);
+	random_pick_larger = register_algorithm(random_pick_cat, 14, "Random Pick (No answer dependence)", 2, guess_randomly, random_pick_larger_init, NULL, NULL);
+	random_pick_ignore_clues = register_algorithm(random_pick_cat, 15, "Random Pick (Ignore clues)", 2, guess_randomly, random_pick_ignore_clues_init, NULL, NULL);
+	random_pick_ignore_clues_larger = register_algorithm(random_pick_cat, 16, "Random Pick (Ignore clues) (No answer dependence)", 2, guess_randomly, random_pick_ignore_clues_larger_init, NULL, NULL);
 }
 
 void algorithm_delete(algorithm* x) {

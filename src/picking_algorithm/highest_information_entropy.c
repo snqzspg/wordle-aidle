@@ -7,7 +7,7 @@
 #include "../wordle/guess_bucket.h"
 #include "../wordle/wordle_logic.h"
 #include "../wordle/word_list.h"
-#include "../wordle_filter/list_words_by_clue.h"
+//#include "../wordle_filter/list_words_by_clue.h"
 #include "../wordle_solver/solver.h"
 #include "../word_list/hardcoded_dictionary.h"
 
@@ -65,7 +65,7 @@ void information_theory_more_vocab_hard_init(solver* slvr, algorithm* algo) {
 /**
  * Copy the result distribution into distmap.
  */
-static void gen_result_distri(stts_hmap* distmap, wlist* list, const char* guess_word) {
+void gen_result_distri(stts_hmap* distmap, wlist* list, const char* guess_word) {
 	char result_str[strlen(guess_word) + 1];
 	wlword* i;
 	wlist_foreach(i, list) {
@@ -188,7 +188,7 @@ static char should_pick_alt_list(wlist* word_list, char optimise) {
 	return word_list -> length > 2 /*g -> max_guesses - g -> guess_count*/ && (!optimise || word_list -> length < 50);
 }
 
-static void log_scores_debug(wlist* list, wlist* ref_list) {
+static void log_scores_itdebug(wlist* list, wlist* ref_list) {
 	struct word_entropy* entropies = malloc(sizeof(struct word_entropy) * list -> length);
 	size_t counter = 0;
 	wlword* j;
@@ -220,7 +220,7 @@ static char* guess_by_information_entropy_base(gbucket* guess_board, wlist** wor
 	wlist* topick = should_pick_alt_list(word_lists[0], optimise) ? alt_list : word_lists[0];
 	if (show_word_list_to_user) {
 		if (log_scores) {
-			log_scores_debug(topick, word_lists[0]);
+			log_scores_itdebug(topick, word_lists[0]);
 		}
 		char** tmp_word_list = malloc(sizeof(char*) * word_lists[0] -> length);
 		size_t counter = 0;

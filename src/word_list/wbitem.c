@@ -16,20 +16,7 @@
  * Stolen from python
  */
 long wbitem__make_hash(char *s) {
-	return hash_str(s);
-//	register size_t len;
-//	register long x;
-//
-//	len = strlen(s);
-//	x = *s << 7;
-//	while (--len >= 10) {
-//		x = (1000003 * x) ^ (*s + 1);
-//	}
-//	x ^= strlen(s);
-//	if (x == -1) {
-//		x = -2;
-//	}
-//	return x;
+	return sdbm_hash_str(s);
 }
 
 long wbitem_make_hash(const char *s) {

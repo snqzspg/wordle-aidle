@@ -177,6 +177,7 @@ void testing_screen(algorithm* algo, const char* starting_word) {
 	strcpy(tmp, starting_word);
 	uppercase(tmp);
 	printf("Starting word: %s\n\n", tmp);
+	printf("Press <ctrl-c> to cancel, and restart this application to do other things here.\n\n");
 }
 
 void print_test_line(test_sess* session) {

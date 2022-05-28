@@ -32,17 +32,7 @@ typedef struct wordle_game_solver {
 	char display_word_list;
 } solver;
 
-//solver* solver_create(char* (*sugg_algo) (gbucket* guess_board, wlist** word_lists, size_t nword_lists), char include_all_valid_words);
-
 solver* solver_create(algorithm* sugg_algorithm, char show_word_list_to_user);
-
-/**
- * For alt_list:
- *   0 - No alternate list
- *   1 - Wordle answers
- *   2 - Valid words
- */
-//solver* solver_create_w_alt_list(char* (*sugg_algo) (gbucket* guess_board, wlist** word_lists, size_t nword_lists), char include_all_valid_words, int alt_list, char filter_main_list, char filter_alt_list);
 
 /**
  * Returns 1 if this is open to guesses, 0 if it is not.

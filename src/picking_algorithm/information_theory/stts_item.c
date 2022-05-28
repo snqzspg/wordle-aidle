@@ -12,20 +12,7 @@
  */
 
 long stts_item_make_hash(const char* key) {
-	return hash_str(key);
-//	register size_t len;
-//	register long x;
-//
-//	len = strlen(key);
-//	x = *key << 7;
-//	while (--len >= 10) {
-//		x = (1000003 * x) ^ (*key + 1);
-//	}
-//	x ^= strlen(key);
-//	if (x == -1) {
-//		x = -2;
-//	}
-//	return x;
+	return sdbm_hash_str(key);
 }
 
 stts_item* stts_item_create(const char* key, const size_t val) {

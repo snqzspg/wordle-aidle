@@ -19,6 +19,14 @@ void random_pick_init(solver* slvr, algorithm* algo) {
 	slvr -> list_configs[0].standard_filter = 1;
 }
 
+void random_pick_ignore_clues_init(solver* slvr, algorithm* algo) {
+	wbitem* item;
+	wbank_foreachitem(item, hcded_dict) {
+		wlist_append(slvr -> list_configs[0].list, item -> value);
+	}
+	slvr -> list_configs[0].standard_filter = 0;
+}
+
 void random_pick_larger_init(solver* slvr, algorithm* algo) {
 	wbitem* item;
 	wbank_foreachitem(item, hcded_dict) {
@@ -30,13 +38,23 @@ void random_pick_larger_init(solver* slvr, algorithm* algo) {
 	slvr -> list_configs[0].standard_filter = 1;
 }
 
+void random_pick_ignore_clues_larger_init(solver* slvr, algorithm* algo) {
+	wbitem* item;
+	wbank_foreachitem(item, hcded_dict) {
+		wlist_append(slvr -> list_configs[0].list, item -> value);
+	}
+	wbank_foreachitem(item, valid_words) {
+		wlist_append(slvr -> list_configs[0].list, item -> value);
+	}
+	slvr -> list_configs[0].standard_filter = 0;
+}
+
 /**
  * Self explanatory
  */
 /*
  * NOTE: Only the list at index 0 is displayed to the user
  */
-//char* guess_randomly(wlist* word_list, gbucket* g, wlist* alt_list) {
 char* guess_randomly(gbucket* guess_board, wlist** word_lists, size_t nword_lists, char show_word_list_to_user) {
 	if (word_lists[0] -> length == 0) {
 		return NULL;

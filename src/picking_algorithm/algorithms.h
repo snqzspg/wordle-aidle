@@ -27,6 +27,7 @@ typedef struct algo_category_registry {
 	size_t order;
 	char* name;
 	char* info;
+	char* tag_desc; // Small desc
 	algorithm** registered_algorithms;
 	size_t registered_algo_count;
 	size_t registered_algo_alloc;
@@ -54,6 +55,7 @@ extern algorithm* information_theory_slightly_optimised_larger;
 extern algorithm* information_theory_hard;
 extern algorithm* information_theory_hard_larger;
 extern algorithm* anti_absurdle;
+extern algorithm* anti_absurdle_hard;
 extern algorithm* matt_dodge_hybrid;
 extern algorithm* matt_dodge_hybrid_larger;
 extern algorithm* matt_dodge_hybrid_hard;

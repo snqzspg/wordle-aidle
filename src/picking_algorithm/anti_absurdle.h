@@ -9,6 +9,7 @@
 #include "algorithms.h"
 
 void anti_absurdle_init(solver* slvr, algorithm* algo);
+void anti_absurdle_hard_init(solver* slvr, algorithm* algo);
 
 char* guess_using_anti_absurdle(gbucket* guess_board, wlist** word_lists, size_t nword_lists, char show_word_list_to_user);
 

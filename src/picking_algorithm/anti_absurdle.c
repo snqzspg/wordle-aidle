@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "../sorting/heap_sort.h"
+#include "../sorting/merge_sort.h"
 #include "../wordle/guess_bucket.h"
 #include "../wordle/wordle_logic.h"
 #include "../wordle/word_list.h"
@@ -15,6 +16,10 @@
 #include "algorithms.h"
 #include "anti_absurdle.h"
 #include "highest_information_entropy.h"
+
+// Tentative
+static char should_pick_alt_list(wlist* word_list);
+static void log_scores_itdebug(wlist* list, wlist* ref_list);
 
 void anti_absurdle_init(solver* slvr, algorithm* algo) {
 	wbitem* item;
@@ -29,6 +34,29 @@ void anti_absurdle_init(solver* slvr, algorithm* algo) {
 	}
 	slvr -> list_configs[0].standard_filter = 1;
 	slvr -> list_configs[1].standard_filter = 0;
+	// Tentative
+	if (log_scores && slvr -> display_word_list) {
+		log_scores_itdebug(slvr -> list_configs[should_pick_alt_list(slvr -> list_configs[0].list) ? 1 : 0].list, slvr -> list_configs[0].list);
+	}
+}
+
+void anti_absurdle_hard_init(solver* slvr, algorithm* algo) {
+	wbitem* item;
+	wbank_foreachitem(item, hcded_dict) {
+		wlist_append(slvr -> list_configs[0].list, item -> value);
+	}
+	wbank_foreachitem(item, hcded_dict) {
+		wlist_append(slvr -> list_configs[1].list, item -> value);
+	}
+	wbank_foreachitem(item, valid_words) {
+		wlist_append(slvr -> list_configs[1].list, item -> value);
+	}
+	slvr -> list_configs[0].standard_filter = 1;
+	slvr -> list_configs[1].standard_filter = 1;
+	// Tentative
+	if (log_scores && slvr -> display_word_list) {
+		log_scores_itdebug(slvr -> list_configs[should_pick_alt_list(slvr -> list_configs[0].list) ? 1 : 0].list, slvr -> list_configs[0].list);
+	}
 }
 
 static size_t get_worst_count(wlist* list, const char* guess_word) {
@@ -89,12 +117,11 @@ static void log_scores_itdebug(wlist* list, wlist* ref_list) {
 		scores[counter].count = get_worst_count(ref_list, j -> word);
 		counter++;
 	}
-	hsort(scores, list -> length, sizeof(struct word_absurd_count), cmpwacount);
+	msort(scores, list -> length, sizeof(struct word_absurd_count), cmpwacount);
 	counter = 0;
 	FILE* debug = fopen("debug.log", "wb");
 	wlist_foreach(j, list) {
-		fwrite(scores[counter].word, sizeof(char), 5, debug);
-		fprintf(debug, " - %lu\n", (long unsigned) scores[counter].count);
+		fprintf(debug, "%s - %lu\n", scores[counter].word, (long unsigned) scores[counter].count);
 		counter++;
 	}
 	fclose(debug);

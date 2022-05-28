@@ -4,10 +4,10 @@
 #include <string.h>
 
 #include "../sorting/heap_sort.h"
+#include "../sorting/merge_sort.h"
 #include "../wordle/guess_bucket.h"
 #include "../wordle/wordle_logic.h"
 #include "../wordle/word_list.h"
-//#include "../wordle_filter/list_words_by_clue.h"
 #include "../wordle_solver/solver.h"
 #include "../word_list/hardcoded_dictionary.h"
 
@@ -34,11 +34,19 @@ static void cpy_valids(solver* slvr, algorithm* algo, int list_index) {
 	}
 }
 
+// Tentative
+static char should_pick_alt_list(wlist* word_list, char optimise);
+static void log_scores_itdebug(wlist* list, wlist* ref_list);
+
 void information_theory_init(solver* slvr, algorithm* algo) {
 	cpy_answers(slvr, algo, 0);
 	cpy_valids(slvr, algo, 1);
 	slvr -> list_configs[0].standard_filter = 1;
 	slvr -> list_configs[1].standard_filter = 0;
+	// Tentative
+	if (log_scores) {
+		log_scores_itdebug(slvr -> list_configs[should_pick_alt_list(slvr -> list_configs[0].list, 0) ? 1 : 0].list, slvr -> list_configs[0].list);
+	}
 }
 
 void information_theory_hard_init(solver* slvr, algorithm* algo) {
@@ -46,6 +54,10 @@ void information_theory_hard_init(solver* slvr, algorithm* algo) {
 	cpy_valids(slvr, algo, 1);
 	slvr -> list_configs[0].standard_filter = 1;
 	slvr -> list_configs[1].standard_filter = 1;
+	// Tentative
+	if (log_scores && slvr -> display_word_list) {
+		log_scores_itdebug(slvr -> list_configs[should_pick_alt_list(slvr -> list_configs[0].list, 0) ? 1 : 0].list, slvr -> list_configs[0].list);
+	}
 }
 
 void information_theory_more_vocab_init(solver* slvr, algorithm* algo) {
@@ -53,6 +65,10 @@ void information_theory_more_vocab_init(solver* slvr, algorithm* algo) {
 	cpy_valids(slvr, algo, 1);
 	slvr -> list_configs[0].standard_filter = 1;
 	slvr -> list_configs[1].standard_filter = 0;
+	// Tentative
+	if (log_scores && slvr -> display_word_list) {
+		log_scores_itdebug(slvr -> list_configs[should_pick_alt_list(slvr -> list_configs[0].list, 0) ? 1 : 0].list, slvr -> list_configs[0].list);
+	}
 }
 
 void information_theory_more_vocab_hard_init(solver* slvr, algorithm* algo) {
@@ -60,6 +76,10 @@ void information_theory_more_vocab_hard_init(solver* slvr, algorithm* algo) {
 	cpy_valids(slvr, algo, 1);
 	slvr -> list_configs[0].standard_filter = 1;
 	slvr -> list_configs[1].standard_filter = 1;
+	// Tentative
+	if (log_scores && slvr -> display_word_list) {
+		log_scores_itdebug(slvr -> list_configs[should_pick_alt_list(slvr -> list_configs[0].list, 0) ? 1 : 0].list, slvr -> list_configs[0].list);
+	}
 }
 
 /**
@@ -197,12 +217,11 @@ static void log_scores_itdebug(wlist* list, wlist* ref_list) {
 		entropies[counter].entropy = get_entropy(ref_list, j -> word);
 		counter++;
 	}
-	hsort(entropies, list -> length, sizeof(struct word_entropy), cmpwentropy);
+	msort(entropies, list -> length, sizeof(struct word_entropy), cmpwentropy);
 	counter = 0;
 	FILE* debug = fopen("debug.log", "wb");
 	wlist_foreach(j, list) {
-		fwrite(entropies[counter].word, sizeof(char), 5, debug);
-		fprintf(debug, " - %f\n", entropies[counter].entropy);
+		fprintf(debug, "%s - %f\n", entropies[counter].word, entropies[counter].entropy);
 		counter++;
 	}
 	fclose(debug);

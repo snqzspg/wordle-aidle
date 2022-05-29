@@ -51,7 +51,7 @@ wlgame* wlgame_create(char* answer, char* word_day_label) {
 		print_error_ln(not_enough_memory);
 		return NULL;
 	}
-	newgame -> board = gbucket_create(max_allowed_guesses, word_day_label);
+	newgame -> board = gbucket_create(wordle_max_guesses, word_day_label);
 	newgame -> solution = malloc(sizeof(char) * (strlen(answer) + 1));
 	if (newgame -> board == NULL || newgame -> solution == NULL) {
 		print_error_ln(not_enough_memory);

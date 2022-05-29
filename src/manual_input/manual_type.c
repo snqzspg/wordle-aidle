@@ -162,6 +162,12 @@ void print_game_page(solver* s, char suggestion) {
 	}
 }
 
+static void print_thinking_line() {
+	pgcg_set_note_colour();
+	printf("Thinking...\n");
+	pgcg_reset_colour();
+}
+
 void process_answer(solver* s, char* input) {
 	size_t inlen = (strlen(input) - 1) / 2;
 	char inword[inlen + 1];
@@ -204,6 +210,7 @@ static char first_entry(solver* slver) {
 		}
 		invalid = 1;
 	}
+	print_thinking_line();
 	process_answer(slver, input);
 	free(input);
 	return 0;
@@ -238,6 +245,7 @@ static char subsequent_entries(solver* slver) {
 				invalid_input = 1;
 			}
 		}
+		print_thinking_line();
 		process_answer(slver, input);
 		invalid_input = 0;
 		free(input);
